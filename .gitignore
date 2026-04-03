@@ -43,3 +43,4 @@ Thumbs.db
 
 # Source PDFs / raw data
 *.pdf
+dataconnect/.dataconnect/
