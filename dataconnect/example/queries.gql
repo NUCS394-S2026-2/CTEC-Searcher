@@ -1,0 +1,92 @@
+query ListCourseOfferings @auth(level: PUBLIC) {
+  courseOfferings {
+    id
+    year
+    quarter
+    audience
+    responsesReceived
+    comments
+    course {
+      id
+      department
+      courseNumber
+      courseName
+      sections
+    }
+    professor {
+      id
+      firstName
+      lastName
+    }
+    questions: questions_on_courseOffering {
+      id
+      questionText
+      responseCount
+      distribution
+      mean
+    }
+  }
+}
+
+query GetCourseOffering($id: UUID!) @auth(level: PUBLIC) {
+  courseOffering(id: $id) {
+    id
+    year
+    quarter
+    audience
+    responsesReceived
+    comments
+    course {
+      department
+      courseNumber
+      courseName
+      sections
+    }
+    professor {
+      firstName
+      lastName
+    }
+    questions: questions_on_courseOffering {
+      questionText
+      responseCount
+      distribution
+      mean
+    }
+  }
+}
+
+mutation CreateCourseOffering(
+  $year: Int!
+  $quarter: String!
+  $courseId: UUID!
+  $professorId: UUID!
+  $audience: Int!
+  $responsesReceived: Int!
+  $comments: [String!]!
+) @auth(expr: "auth.token.admin == true") {
+  courseOffering_insert(data: {
+    year: $year
+    quarter: $quarter
+    courseId: $courseId
+    professorId: $professorId
+    audience: $audience
+    responsesReceived: $responsesReceived
+    comments: $comments
+  })
+}
+
+mutation CreateQuestion(
+  $courseOfferingId: UUID!
+  $questionText: String!
+  $responseCount: Int!
+  $distribution: String!
+  $mean: Float
+) @auth(expr: "auth.token.admin == true") {
+  question_insert(data: {
+    courseOfferingId: $courseOfferingId
+    questionText: $questionText
+    responseCount: $responseCount
+    distribution: $distribution
+    mean: $mean
+  })
+}

@@ -1,0 +1,29 @@
+type Professor @table {
+  firstName: String!
+  lastName: String!
+}
+
+type Course @table {
+  department: String!
+  courseNumber: String!
+  courseName: String!
+  sections: [String!]!
+}
+
+type CourseOffering @table {
+  year: Int!
+  quarter: String!
+  course: Course!
+  professor: Professor!
+  audience: Int!
+  responsesReceived: Int!
+  comments: [String!]!
+}
+
+type Question @table {
+  courseOffering: CourseOffering!
+  questionText: String!
+  responseCount: Int!
+  distribution: String! # JSON-encoded Record<string, number>
+  mean: Float           # null for categorical questions, present for Likert
+}

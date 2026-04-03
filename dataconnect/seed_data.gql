@@ -1,0 +1,76 @@
+mutation CreateDemoData @transaction @auth(level: PUBLIC, insecureReason: "Seed data is publicly accessible for demo purposes.") {
+  department_insertMany(data: [
+    {
+      id: "b9e1d1a6-5e04-4d8e-9c2b-2a6d3f4e5a7b",
+      name: "Computer Science",
+      departmentCode: "CS",
+      contactEmail: "cs@example.edu",
+      headOfDepartment: "Dr. Smith"
+    },
+    {
+      id: "a1c2e3f4-g5h6-i7j8-k9l0-m1n2o3p4q5r6",
+      name: "Electrical Engineering",
+      departmentCode: "EE",
+      contactEmail: "ee@example.edu",
+      headOfDepartment: "Dr. Jones"
+    }
+  ])
+  instructor_insertMany(data: [
+    {
+      id: "c7d8e9f0-g1h2-i3j4-k5l6-m7n8o9p0q1r2",
+      firstName: "Alice",
+      lastName: "Johnson",
+      employeeId: "AJ001",
+      email: "alice.j@example.edu",
+      departmentId: "b9e1d1a6-5e04-4d8e-9c2b-2a6d3f4e5a7b"
+    },
+    {
+      id: "d3e4f5g6-h7i8-j9k0-l1m2-n3o4p5q6r7s8",
+      firstName: "Bob",
+      lastName: "Williams",
+      employeeId: "BW002",
+      email: "bob.w@example.edu",
+      departmentId: "a1c2e3f4-g5h6-i7j8-k9l0-m1n2o3p4q5r6"
+    }
+  ])
+  course_insertMany(data: [
+    {
+      id: "e5f6g7h8-i9j0-k1l2-m3n4-o5p6q7r8s9t0",
+      courseNumber: "CS101",
+      title: "Introduction to Computer Science",
+      description: "A foundational course in computer science.",
+      semesterOffered: "Fall, Spring",
+      departmentId: "b9e1d1a6-5e04-4d8e-9c2b-2a6d3f4e5a7b",
+      prerequisites: null
+    },
+    {
+      id: "f1g2h3i4-j5k6-l7m8-n9o0-p1q2r3s4t5u6",
+      courseNumber: "EE201",
+      title: "Circuits and Electronics",
+      description: "An introductory course to electrical circuits.",
+      semesterOffered: "Fall",
+      departmentId: "a1c2e3f4-g5h6-i7j8-k9l0-m1n2o3p4q5r6",
+      prerequisites: "PHYS101"
+    }
+  ])
+  courseOffering_insertMany(data: [
+    {
+      id: "g7h8i9j0-k1l2-m3n4-o5p6-q7r8s9t0u1v2",
+      semester: "Fall",
+      year: 2024,
+      courseId: "e5f6g7h8-i9j0-k1l2-m3n4-o5p6q7r8s9t0",
+      instructorId: "c7d8e9f0-g1h2-i3j4-k5l6-m7n8o9p0q1r2",
+      location: "Room 101",
+      maxStudents: 50
+    },
+    {
+      id: "h3i4j5k6-l7m8-n9o0-p1q2-r3s4t5u6v7w8",
+      semester: "Fall",
+      year: 2024,
+      courseId: "f1g2h3i4-j5k6-l7m8-n9o0-p1q2r3s4t5u6",
+      instructorId: "d3e4f5g6-h7i8-j9k0-l1m2-n3o4p5q6r7s8",
+      location: "Lab A",
+      maxStudents: 30
+    }
+  ])
+}
