@@ -38,7 +38,7 @@ Object.keys(globals.node).forEach((key) => {
 
 module.exports = [
   {
-    ignores: ['**/node_modules/', '**/dist/', '**/*.log'],
+    ignores: ['**/node_modules/', '**/dist/', '**/*.log', 'src/dataconnect-generated/'],
   },
   ...compat.extends(
     'eslint:recommended',
