@@ -1,12 +1,4 @@
-import {
-  ConnectorConfig,
-  DataConnect,
-  QueryRef,
-  QueryPromise,
-  ExecuteQueryOptions,
-  MutationRef,
-  MutationPromise,
-} from 'firebase/data-connect';
+import { ConnectorConfig, DataConnect, QueryRef, QueryPromise, ExecuteQueryOptions, MutationRef, MutationPromise } from 'firebase/data-connect';
 
 export const connectorConfig: ConnectorConfig;
 
@@ -14,6 +6,9 @@ export type TimestampString = string;
 export type UUIDString = string;
 export type Int64String = string;
 export type DateString = string;
+
+
+
 
 export interface CourseOffering_Key {
   id: UUIDString;
@@ -65,16 +60,16 @@ export interface GetCourseOfferingData {
       courseName: string;
       sections: string[];
     };
-    professor: {
-      firstName: string;
-      lastName: string;
-    };
-    questions: {
-      questionText: string;
-      responseCount: number;
-      distribution: string;
-      mean?: number | null;
-    }[];
+      professor: {
+        firstName: string;
+        lastName: string;
+      };
+        questions: ({
+          questionText: string;
+          responseCount: number;
+          distribution: string;
+          mean?: number | null;
+        })[];
   } & CourseOffering_Key;
 }
 
@@ -97,18 +92,18 @@ export interface ListCourseOfferingsData {
       courseName: string;
       sections: string[];
     } & Course_Key;
-    professor: {
-      id: UUIDString;
-      firstName: string;
-      lastName: string;
-    } & Professor_Key;
-    questions: ({
-      id: UUIDString;
-      questionText: string;
-      responseCount: number;
-      distribution: string;
-      mean?: number | null;
-    } & Question_Key)[];
+      professor: {
+        id: UUIDString;
+        firstName: string;
+        lastName: string;
+      } & Professor_Key;
+        questions: ({
+          id: UUIDString;
+          questionText: string;
+          responseCount: number;
+          distribution: string;
+          mean?: number | null;
+        } & Question_Key)[];
   } & CourseOffering_Key)[];
 }
 
@@ -131,78 +126,42 @@ interface ListCourseOfferingsRef {
 }
 export const listCourseOfferingsRef: ListCourseOfferingsRef;
 
-export function listCourseOfferings(
-  options?: ExecuteQueryOptions,
-): QueryPromise<ListCourseOfferingsData, undefined>;
-export function listCourseOfferings(
-  dc: DataConnect,
-  options?: ExecuteQueryOptions,
-): QueryPromise<ListCourseOfferingsData, undefined>;
+export function listCourseOfferings(options?: ExecuteQueryOptions): QueryPromise<ListCourseOfferingsData, undefined>;
+export function listCourseOfferings(dc: DataConnect, options?: ExecuteQueryOptions): QueryPromise<ListCourseOfferingsData, undefined>;
 
 interface GetCourseOfferingRef {
   /* Allow users to create refs without passing in DataConnect */
-  (
-    vars: GetCourseOfferingVariables,
-  ): QueryRef<GetCourseOfferingData, GetCourseOfferingVariables>;
+  (vars: GetCourseOfferingVariables): QueryRef<GetCourseOfferingData, GetCourseOfferingVariables>;
   /* Allow users to pass in custom DataConnect instances */
-  (
-    dc: DataConnect,
-    vars: GetCourseOfferingVariables,
-  ): QueryRef<GetCourseOfferingData, GetCourseOfferingVariables>;
+  (dc: DataConnect, vars: GetCourseOfferingVariables): QueryRef<GetCourseOfferingData, GetCourseOfferingVariables>;
   operationName: string;
 }
 export const getCourseOfferingRef: GetCourseOfferingRef;
 
-export function getCourseOffering(
-  vars: GetCourseOfferingVariables,
-  options?: ExecuteQueryOptions,
-): QueryPromise<GetCourseOfferingData, GetCourseOfferingVariables>;
-export function getCourseOffering(
-  dc: DataConnect,
-  vars: GetCourseOfferingVariables,
-  options?: ExecuteQueryOptions,
-): QueryPromise<GetCourseOfferingData, GetCourseOfferingVariables>;
+export function getCourseOffering(vars: GetCourseOfferingVariables, options?: ExecuteQueryOptions): QueryPromise<GetCourseOfferingData, GetCourseOfferingVariables>;
+export function getCourseOffering(dc: DataConnect, vars: GetCourseOfferingVariables, options?: ExecuteQueryOptions): QueryPromise<GetCourseOfferingData, GetCourseOfferingVariables>;
 
 interface CreateCourseOfferingRef {
   /* Allow users to create refs without passing in DataConnect */
-  (
-    vars: CreateCourseOfferingVariables,
-  ): MutationRef<CreateCourseOfferingData, CreateCourseOfferingVariables>;
+  (vars: CreateCourseOfferingVariables): MutationRef<CreateCourseOfferingData, CreateCourseOfferingVariables>;
   /* Allow users to pass in custom DataConnect instances */
-  (
-    dc: DataConnect,
-    vars: CreateCourseOfferingVariables,
-  ): MutationRef<CreateCourseOfferingData, CreateCourseOfferingVariables>;
+  (dc: DataConnect, vars: CreateCourseOfferingVariables): MutationRef<CreateCourseOfferingData, CreateCourseOfferingVariables>;
   operationName: string;
 }
 export const createCourseOfferingRef: CreateCourseOfferingRef;
 
-export function createCourseOffering(
-  vars: CreateCourseOfferingVariables,
-): MutationPromise<CreateCourseOfferingData, CreateCourseOfferingVariables>;
-export function createCourseOffering(
-  dc: DataConnect,
-  vars: CreateCourseOfferingVariables,
-): MutationPromise<CreateCourseOfferingData, CreateCourseOfferingVariables>;
+export function createCourseOffering(vars: CreateCourseOfferingVariables): MutationPromise<CreateCourseOfferingData, CreateCourseOfferingVariables>;
+export function createCourseOffering(dc: DataConnect, vars: CreateCourseOfferingVariables): MutationPromise<CreateCourseOfferingData, CreateCourseOfferingVariables>;
 
 interface CreateQuestionRef {
   /* Allow users to create refs without passing in DataConnect */
-  (
-    vars: CreateQuestionVariables,
-  ): MutationRef<CreateQuestionData, CreateQuestionVariables>;
+  (vars: CreateQuestionVariables): MutationRef<CreateQuestionData, CreateQuestionVariables>;
   /* Allow users to pass in custom DataConnect instances */
-  (
-    dc: DataConnect,
-    vars: CreateQuestionVariables,
-  ): MutationRef<CreateQuestionData, CreateQuestionVariables>;
+  (dc: DataConnect, vars: CreateQuestionVariables): MutationRef<CreateQuestionData, CreateQuestionVariables>;
   operationName: string;
 }
 export const createQuestionRef: CreateQuestionRef;
 
-export function createQuestion(
-  vars: CreateQuestionVariables,
-): MutationPromise<CreateQuestionData, CreateQuestionVariables>;
-export function createQuestion(
-  dc: DataConnect,
-  vars: CreateQuestionVariables,
-): MutationPromise<CreateQuestionData, CreateQuestionVariables>;
+export function createQuestion(vars: CreateQuestionVariables): MutationPromise<CreateQuestionData, CreateQuestionVariables>;
+export function createQuestion(dc: DataConnect, vars: CreateQuestionVariables): MutationPromise<CreateQuestionData, CreateQuestionVariables>;
+
