@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import type { CourseOffering } from '../types/course';
@@ -19,7 +18,6 @@ interface CourseCardProps {
 }
 
 export const CourseCard = ({ offering }: CourseCardProps) => {
-  const [expanded, setExpanded] = useState(false);
   const navigate = useNavigate();
   const instructionMean = getMean(offering, 'Quality of instruction');
   const responseRate = getResponseRate(offering);
@@ -118,46 +116,6 @@ export const CourseCard = ({ offering }: CourseCardProps) => {
           />
         ))}
       </div>
-
-      {/* Comments toggle */}
-      {offering.comments.length > 0 && (
-        <div className="border-t border-gray-50">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setExpanded(!expanded);
-            }}
-            className="w-full flex items-center justify-between px-5 py-3 text-xs font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-colors"
-          >
-            <span>Student Comments ({offering.comments.length})</span>
-            <svg
-              className={`w-4 h-4 transition-transform ${expanded ? 'rotate-180' : ''}`}
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
-          </button>
-          {expanded && (
-            <div className="px-5 pb-4 flex flex-col gap-3">
-              {offering.comments.map((comment, i) => (
-                <blockquote
-                  key={i}
-                  className="text-xs text-gray-600 border-l-2 border-purple-200 pl-3 leading-relaxed"
-                >
-                  {comment}
-                </blockquote>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
     </div>
   );
 };
