@@ -1,5 +1,7 @@
+import { connectorConfig } from '@dataconnect/generated';
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
+import { connectDataConnectEmulator, getDataConnect } from 'firebase/data-connect';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -13,3 +15,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 export const auth = getAuth(app);
+export const dataConnect = getDataConnect(app, connectorConfig);
+
+if (import.meta.env.DEV) {
+  connectDataConnectEmulator(dataConnect, 'localhost', 9399);
+}

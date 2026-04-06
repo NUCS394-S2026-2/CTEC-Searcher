@@ -55,6 +55,30 @@ query GetCourseOffering($id: UUID!) @auth(level: PUBLIC) {
   }
 }
 
+mutation CreateProfessor(
+  $firstName: String!
+  $lastName: String!
+) @auth(level: PUBLIC) {
+  professor_insert(data: {
+    firstName: $firstName
+    lastName: $lastName
+  })
+}
+
+mutation CreateCourse(
+  $department: String!
+  $courseNumber: String!
+  $courseName: String!
+  $sections: [String!]!
+) @auth(level: PUBLIC) {
+  course_insert(data: {
+    department: $department
+    courseNumber: $courseNumber
+    courseName: $courseName
+    sections: $sections
+  })
+}
+
 mutation CreateCourseOffering(
   $year: Int!
   $quarter: String!
@@ -63,7 +87,7 @@ mutation CreateCourseOffering(
   $audience: Int!
   $responsesReceived: Int!
   $comments: [String!]!
-) @auth(expr: "auth.token.admin == true") {
+) @auth(level: PUBLIC) {
   courseOffering_insert(data: {
     year: $year
     quarter: $quarter
@@ -81,7 +105,7 @@ mutation CreateQuestion(
   $responseCount: Int!
   $distribution: String!
   $mean: Float
-) @auth(expr: "auth.token.admin == true") {
+) @auth(level: PUBLIC) {
   question_insert(data: {
     courseOfferingId: $courseOfferingId
     questionText: $questionText
