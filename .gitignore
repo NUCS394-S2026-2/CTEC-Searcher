@@ -44,3 +44,6 @@ Thumbs.db
 # Source PDFs / raw data
 *.pdf
 dataconnect/.dataconnect/
+
+# Generated Firebase Data Connect SDK (regenerate with: npx firebase dataconnect:sdk:generate)
+src/dataconnect-generated/
