@@ -1,0 +1,33 @@
+mutation StandardizeSeededCourseNumbers
+@transaction
+@auth(level: PUBLIC, insecureReason: "Standardize seeded course labels.") {
+  cs336: course_update(
+    key: { id: "b0000000-0066-4000-8000-000000000066" }
+    data: { department: "Computer Science", courseNumber: "COMP_SCI 336" }
+  )
+
+  cs310: course_update(
+    key: { id: "b0000000-0067-4000-8000-000000000067" }
+    data: { department: "Computer Science", courseNumber: "COMP_SCI 310" }
+  )
+
+  cs348: course_update(
+    key: { id: "b0000000-0068-4000-8000-000000000068" }
+    data: { department: "Computer Science", courseNumber: "COMP_SCI 348" }
+  )
+
+  cs343: course_update(
+    key: { id: "b0000000-006a-4000-8000-00000000006a" }
+    data: { department: "Computer Science", courseNumber: "COMP_SCI 343" }
+  )
+
+  cs330: course_update(
+    key: { id: "b0000000-006b-4000-8000-00000000006b" }
+    data: { department: "Computer Science", courseNumber: "COMP_SCI 330" }
+  )
+
+  cs338: course_update(
+    key: { id: "b0000000-006d-4000-8000-00000000006d" }
+    data: { department: "Computer Science", courseNumber: "COMP_SCI 338" }
+  )
+}
