@@ -1,9 +1,7 @@
-import type { ListCourseOfferingsData } from '@dataconnect/generated';
 import { useEffect, useState } from 'react';
 
 import { fetchCourseOfferings } from '../services/courseService';
-
-export type CourseOffering = ListCourseOfferingsData['courseOfferings'][number];
+import type { CourseOffering } from '../types/course';
 
 export const useCourses = () => {
   const [offerings, setOfferings] = useState<CourseOffering[]>([]);

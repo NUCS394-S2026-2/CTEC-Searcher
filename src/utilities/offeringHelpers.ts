@@ -1,4 +1,4 @@
-import type { CourseOffering } from '../hooks/useCourses';
+import type { CourseOffering } from '../types/course';
 
 export const getMean = (offering: CourseOffering, questionText: string): number => {
   const q = offering.questions.find((q) => q.questionText === questionText);
@@ -8,12 +8,8 @@ export const getMean = (offering: CourseOffering, questionText: string): number 
 export const getHoursPerWeek = (offering: CourseOffering): string => {
   const q = offering.questions.find((q) => q.questionText === 'Hours per week');
   if (!q) return 'N/A';
-  try {
-    const dist = JSON.parse(q.distribution) as Record<string, number>;
-    return Object.keys(dist)[0] ?? 'N/A';
-  } catch {
-    return 'N/A';
-  }
+  const keys = Object.keys(q.distribution);
+  return keys[0] ?? 'N/A';
 };
 
 export const getResponseRate = (offering: CourseOffering): number => {
