@@ -1,6 +1,7 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-import type { CourseOffering } from '../hooks/useCourses';
+import type { CourseOffering } from '../types/course';
 import { getHoursPerWeek, getMean, getResponseRate } from '../utilities/offeringHelpers';
 import { OverallScore } from './OverallScore';
 import { RatingBar } from './RatingBar';
@@ -19,13 +20,22 @@ interface CourseCardProps {
 
 export const CourseCard = ({ offering }: CourseCardProps) => {
   const [expanded, setExpanded] = useState(false);
+  const navigate = useNavigate();
   const instructionMean = getMean(offering, 'Quality of instruction');
   const responseRate = getResponseRate(offering);
   const hoursPerWeek = getHoursPerWeek(offering);
   const professorName = `${offering.professor.firstName} ${offering.professor.lastName}`;
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+    <div
+      role="button"
+      tabIndex={0}
+      className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow overflow-hidden cursor-pointer"
+      onClick={() => navigate(`/course/${offering.id}`)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') navigate(`/course/${offering.id}`);
+      }}
+    >
       {/* Header */}
       <div className="px-5 pt-5 pb-4">
         <div className="flex items-start justify-between gap-3">
@@ -113,7 +123,10 @@ export const CourseCard = ({ offering }: CourseCardProps) => {
       {offering.comments.length > 0 && (
         <div className="border-t border-gray-50">
           <button
-            onClick={() => setExpanded(!expanded)}
+            onClick={(e) => {
+              e.stopPropagation();
+              setExpanded(!expanded);
+            }}
             className="w-full flex items-center justify-between px-5 py-3 text-xs font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-colors"
           >
             <span>Student Comments ({offering.comments.length})</span>
