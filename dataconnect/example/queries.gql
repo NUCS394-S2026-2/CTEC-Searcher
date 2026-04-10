@@ -1,56 +1,72 @@
 query ListCourseOfferings @auth(level: PUBLIC) {
-  courseOfferings {
+  ctecOfferings {
     id
     year
     quarter
     audience
     responsesReceived
-    comments
+    commentCount
     course {
       id
       department
       courseNumber
       courseName
-      sections
     }
     professor {
       id
       firstName
       lastName
     }
-    questions: questions_on_courseOffering {
+    questions: questions_on_offering {
       id
+      questionNumber
       questionText
+      questionType
       responseCount
-      distribution
       mean
+      distributions: questionDistributions_on_question {
+        optionLabel
+        count
+      }
+    }
+    comments: comments_on_offering {
+      id
+      text
     }
   }
 }
 
 query GetCourseOffering($id: UUID!) @auth(level: PUBLIC) {
-  courseOffering(id: $id) {
+  ctecOffering(id: $id) {
     id
     year
     quarter
     audience
     responsesReceived
-    comments
+    commentCount
     course {
       department
       courseNumber
       courseName
-      sections
     }
     professor {
       firstName
       lastName
     }
-    questions: questions_on_courseOffering {
+    questions: questions_on_offering {
+      questionNumber
       questionText
+      questionType
       responseCount
-      distribution
       mean
+      distributions: questionDistributions_on_question {
+        optionLabel
+        count
+      }
+    }
+    comments: comments_on_offering {
+      id
+      text
     }
   }
 }
@@ -69,48 +85,70 @@ mutation CreateCourse(
   $department: String!
   $courseNumber: String!
   $courseName: String!
-  $sections: [String!]!
 ) @auth(level: PUBLIC) {
   course_insert(data: {
     department: $department
     courseNumber: $courseNumber
     courseName: $courseName
-    sections: $sections
   })
 }
 
-mutation CreateCourseOffering(
+mutation CreateCtecOffering(
+  $professorId: UUID!
+  $courseId: UUID!
   $year: Int!
   $quarter: String!
-  $courseId: UUID!
-  $professorId: UUID!
   $audience: Int!
   $responsesReceived: Int!
-  $comments: [String!]!
 ) @auth(level: PUBLIC) {
-  courseOffering_insert(data: {
+  ctecOffering_insert(data: {
+    professorId: $professorId
+    courseId: $courseId
     year: $year
     quarter: $quarter
-    courseId: $courseId
-    professorId: $professorId
     audience: $audience
     responsesReceived: $responsesReceived
-    comments: $comments
+    commentCount: 0
   })
 }
 
 mutation CreateQuestion(
-  $courseOfferingId: UUID!
+  $offeringId: UUID!
+  $questionNumber: Int!
   $questionText: String!
+  $questionType: String!
   $responseCount: Int!
-  $distribution: String!
   $mean: Float
 ) @auth(level: PUBLIC) {
   question_insert(data: {
-    courseOfferingId: $courseOfferingId
+    offeringId: $offeringId
+    questionNumber: $questionNumber
     questionText: $questionText
+    questionType: $questionType
     responseCount: $responseCount
-    distribution: $distribution
     mean: $mean
   })
 }
+
+mutation CreateQuestionDistribution(
+  $questionId: UUID!
+  $optionLabel: String!
+  $count: Int!
+) @auth(level: PUBLIC) {
+  questionDistribution_insert(data: {
+    questionId: $questionId
+    optionLabel: $optionLabel
+    count: $count
+  })
+}
+
+mutation CreateComment(
+  $offeringId: UUID!
+  $text: String!
+) @auth(level: PUBLIC) {
+  comment_insert(data: {
+    offeringId: $offeringId
+    text: $text
+  })
+}
+
