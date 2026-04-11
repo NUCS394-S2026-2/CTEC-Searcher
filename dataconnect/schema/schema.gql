@@ -16,7 +16,6 @@ type CtecOffering @table(name: "ctec_offerings") {
   quarter: String!
   audience: Int!
   responsesReceived: Int!
-  commentCount: Int! @default(expr: "0")
 }
 
 type Question @table {

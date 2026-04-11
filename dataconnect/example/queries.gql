@@ -5,7 +5,6 @@ query ListCourseOfferings @auth(level: PUBLIC) {
     quarter
     audience
     responsesReceived
-    commentCount
     course {
       id
       department
@@ -43,13 +42,13 @@ query GetCourseOffering($id: UUID!) @auth(level: PUBLIC) {
     quarter
     audience
     responsesReceived
-    commentCount
     course {
       department
       courseNumber
       courseName
     }
     professor {
+      id
       firstName
       lastName
     }
@@ -108,7 +107,6 @@ mutation CreateCtecOffering(
     quarter: $quarter
     audience: $audience
     responsesReceived: $responsesReceived
-    commentCount: 0
   })
 }
 
@@ -152,3 +150,66 @@ mutation CreateComment(
   })
 }
 
+query GetProfessorByName($firstName: String!, $lastName: String!) @auth(level: PUBLIC) {
+  professor(first: {
+    where: {
+      firstName: { eq: $firstName }
+      lastName: { eq: $lastName }
+    }
+  }) {
+    id
+  }
+}
+
+query GetCourseByNumber($department: String!, $courseNumber: String!) @auth(level: PUBLIC) {
+  course(first: {
+    where: {
+      department: { eq: $department }
+      courseNumber: { eq: $courseNumber }
+    }
+  }) {
+    id
+  }
+}
+
+query GetOfferingByKey(
+  $professorId: UUID!
+  $courseId: UUID!
+  $year: Int!
+  $quarter: String!
+) @auth(level: PUBLIC) {
+  ctecOffering(first: {
+    where: {
+      professorId: { eq: $professorId }
+      courseId: { eq: $courseId }
+      year: { eq: $year }
+      quarter: { eq: $quarter }
+    }
+  }) {
+    id
+  }
+}
+
+mutation UpdateCtecOffering(
+  $id: UUID!
+  $audience: Int!
+  $responsesReceived: Int!
+) @auth(level: PUBLIC) {
+  ctecOffering_update(id: $id, data: {
+    audience: $audience
+    responsesReceived: $responsesReceived
+  })
+}
+
+# Must run before DeleteOfferingQuestions due to FK constraint
+mutation DeleteOfferingDistributions($offeringId: UUID!) @auth(level: PUBLIC) {
+  questionDistribution_deleteMany(where: { question: { offeringId: { eq: $offeringId } } })
+}
+
+mutation DeleteOfferingQuestions($offeringId: UUID!) @auth(level: PUBLIC) {
+  question_deleteMany(where: { offeringId: { eq: $offeringId } })
+}
+
+mutation DeleteOfferingComments($offeringId: UUID!) @auth(level: PUBLIC) {
+  comment_deleteMany(where: { offeringId: { eq: $offeringId } })
+}
