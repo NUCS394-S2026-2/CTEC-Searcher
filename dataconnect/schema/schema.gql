@@ -7,23 +7,33 @@ type Course @table {
   department: String!
   courseNumber: String!
   courseName: String!
-  sections: [String!]!
 }
 
-type CourseOffering @table {
+type CtecOffering @table(name: "ctec_offerings") {
+  professor: Professor!
+  course: Course!
   year: Int!
   quarter: String!
-  course: Course!
-  professor: Professor!
   audience: Int!
   responsesReceived: Int!
-  comments: [String!]!
 }
 
 type Question @table {
-  courseOffering: CourseOffering!
+  offering: CtecOffering!
+  questionNumber: Int!
   questionText: String!
+  questionType: String! # 'likert' or 'categorical'
   responseCount: Int!
-  distribution: String! # JSON-encoded Record<string, number>
-  mean: Float           # null for categorical questions, present for Likert
+  mean: Float # null for categorical, set for likert
+}
+
+type QuestionDistribution @table {
+  question: Question!
+  optionLabel: String!
+  count: Int!
+}
+
+type Comment @table {
+  offering: CtecOffering!
+  text: String!
 }
