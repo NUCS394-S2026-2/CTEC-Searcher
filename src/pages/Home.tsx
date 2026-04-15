@@ -9,10 +9,11 @@ import { getMean } from '../utilities/offeringHelpers';
 const TERMS = ['All', 'Fall', 'Winter', 'Spring', 'Summer'];
 const LEVELS = ['All', '100', '200', '300', '400'];
 const SORT_OPTIONS = [
-  { value: '1', label: 'Instruction Rating' },
   { value: '2', label: 'Course Rating' },
+  { value: '1', label: 'Instruction Rating' },
   { value: '3', label: 'Amount Learned' },
-  { value: '5', label: 'Interest' },
+  { value: '4', label: 'Intellectual Challenge' },
+  { value: '5', label: 'Prior Interest in Subject' },
 ];
 
 export const Home = () => {

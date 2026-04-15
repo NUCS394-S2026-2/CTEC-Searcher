@@ -6,11 +6,11 @@ import { OverallScore } from './OverallScore';
 import { RatingBar } from './RatingBar';
 
 const RATING_LABELS = [
-  { questionNumber: 1, label: 'Instruction' },
-  { questionNumber: 2, label: 'Course' },
-  { questionNumber: 3, label: 'Learning' },
-  { questionNumber: 4, label: 'Challenge' },
-  { questionNumber: 5, label: 'Interest' },
+  { questionNumber: 1, label: 'Instruction Rating' },
+  { questionNumber: 2, label: 'Course Rating' },
+  { questionNumber: 3, label: 'Amount Learned' },
+  { questionNumber: 4, label: 'Intellectual Challenge' },
+  { questionNumber: 5, label: 'Prior Interest in Subject' },
 ] as const;
 
 interface CourseCardProps {
@@ -19,7 +19,7 @@ interface CourseCardProps {
 
 export const CourseCard = ({ offering }: CourseCardProps) => {
   const navigate = useNavigate();
-  const instructionMean = getMean(offering, 1);
+  const instructionMean = getMean(offering, 2);
   const responseRate = getResponseRate(offering);
   const hoursPerWeek = getHoursPerWeek(offering);
   const professorName = `${offering.professor.firstName} ${offering.professor.lastName}`;
