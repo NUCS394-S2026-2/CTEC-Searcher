@@ -1,4 +1,4 @@
-import type { CourseOffering } from '../types/course';
+import type { CourseOffering } from '../types/types';
 
 export const getMean = (offering: CourseOffering, questionText: string): number => {
   const q = offering.questions.find((q) => q.questionText === questionText);

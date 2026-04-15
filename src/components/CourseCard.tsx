@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 
-import type { CourseOffering } from '../types/course';
+import type { CourseOffering } from '../types/types';
 import { getHoursPerWeek, getMean, getResponseRate } from '../utilities/offeringHelpers';
 import { OverallScore } from './OverallScore';
 import { RatingBar } from './RatingBar';

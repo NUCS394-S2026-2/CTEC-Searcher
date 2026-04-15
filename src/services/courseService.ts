@@ -5,7 +5,7 @@ import {
   type ListCourseOfferingsData,
 } from '@dataconnect/generated';
 
-import type { CourseOffering, Question } from '../types/course';
+import type { CourseOffering, Question } from '../types/types';
 import { dataConnect } from './firebase';
 
 const parseQuestions = (
