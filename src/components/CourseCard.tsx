@@ -1,17 +1,8 @@
 import { useNavigate } from 'react-router-dom';
 
 import type { CourseOffering } from '../types/types';
-import { getHoursPerWeek, getMean, getResponseRate } from '../utilities/offeringHelpers';
+import { getHoursPerWeek, getMean } from '../utilities/offeringHelpers';
 import { OverallScore } from './OverallScore';
-import { RatingBar } from './RatingBar';
-
-const RATING_LABELS = [
-  { questionNumber: 1, label: 'Instruction Rating' },
-  { questionNumber: 2, label: 'Course Rating' },
-  { questionNumber: 3, label: 'Amount Learned' },
-  { questionNumber: 4, label: 'Intellectual Challenge' },
-  { questionNumber: 5, label: 'Prior Interest in Subject' },
-] as const;
 
 interface CourseCardProps {
   offering: CourseOffering;
@@ -19,8 +10,8 @@ interface CourseCardProps {
 
 export const CourseCard = ({ offering }: CourseCardProps) => {
   const navigate = useNavigate();
-  const instructionMean = getMean(offering, 2);
-  const responseRate = getResponseRate(offering);
+  const instructionMean = getMean(offering, 1);
+  const courseMean = getMean(offering, 2);
   const hoursPerWeek = getHoursPerWeek(offering);
   const professorName = `${offering.professor.firstName} ${offering.professor.lastName}`;
 
@@ -51,7 +42,7 @@ export const CourseCard = ({ offering }: CourseCardProps) => {
             </h2>
             <p className="text-sm text-gray-500 mt-0.5">{professorName}</p>
           </div>
-          <OverallScore value={instructionMean} />
+          <OverallScore value={courseMean} />
         </div>
 
         <div className="flex items-center gap-3 mt-3 text-xs text-gray-400">
@@ -66,10 +57,10 @@ export const CourseCard = ({ offering }: CourseCardProps) => {
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
-                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"
+                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
               />
             </svg>
-            {offering.courseResponses} responses ({responseRate}%)
+            {instructionMean.toFixed(2)} Teacher Rating
           </span>
           <span className="flex items-center gap-1">
             <svg
@@ -87,34 +78,7 @@ export const CourseCard = ({ offering }: CourseCardProps) => {
             </svg>
             {hoursPerWeek} hrs/wk
           </span>
-          <span className="flex items-center gap-1">
-            <svg
-              className="w-3.5 h-3.5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 8v-4a1 1 0 011-1h2a1 1 0 011 1v4m-6 0h4"
-              />
-            </svg>
-            {offering.course.department}
-          </span>
         </div>
-      </div>
-
-      {/* Ratings */}
-      <div className="px-5 pb-4 grid grid-cols-1 gap-2">
-        {RATING_LABELS.map(({ questionNumber, label }) => (
-          <RatingBar
-            key={questionNumber}
-            value={getMean(offering, questionNumber)}
-            label={label}
-          />
-        ))}
       </div>
     </div>
   );
