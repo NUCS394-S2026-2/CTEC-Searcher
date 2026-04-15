@@ -3,27 +3,35 @@ query ListCourseOfferings @auth(level: PUBLIC) {
     id
     year
     quarter
-    audience
-    responsesReceived
-    comments
+    section
+    courseAudience
+    courseResponses
+    instructorAudience
+    instructorResponses
     course {
       id
       department
       courseNumber
       courseName
-      sections
     }
     professor {
       id
       firstName
       lastName
     }
+    # Note: Comments are intentionally omitted here for list performance
     questions: questions_on_courseOffering {
       id
+      questionNumber
       questionText
+      category
       responseCount
-      distribution
       mean
+      distributions: questionDistributions_on_question {
+        id
+        optionLabel
+        count
+      }
     }
   }
 }
@@ -33,24 +41,36 @@ query GetCourseOffering($id: UUID!) @auth(level: PUBLIC) {
     id
     year
     quarter
-    audience
-    responsesReceived
-    comments
+    section
+    courseAudience
+    courseResponses
+    instructorAudience
+    instructorResponses
     course {
       department
       courseNumber
       courseName
-      sections
     }
     professor {
       firstName
       lastName
     }
+    comments: comments_on_courseOffering {
+      id
+      text
+    }
     questions: questions_on_courseOffering {
+      id
+      questionNumber
       questionText
+      category
       responseCount
-      distribution
       mean
+      distributions: questionDistributions_on_question {
+        id
+        optionLabel
+        count
+      }
     }
   }
 }
@@ -69,48 +89,74 @@ mutation CreateCourse(
   $department: String!
   $courseNumber: String!
   $courseName: String!
-  $sections: [String!]!
 ) @auth(level: PUBLIC) {
   course_insert(data: {
     department: $department
     courseNumber: $courseNumber
     courseName: $courseName
-    sections: $sections
   })
 }
 
 mutation CreateCourseOffering(
   $year: Int!
-  $quarter: String!
+  $quarter: Quarter!
+  $section: String!
   $courseId: UUID!
   $professorId: UUID!
-  $audience: Int!
-  $responsesReceived: Int!
-  $comments: [String!]!
+  $courseAudience: Int!
+  $courseResponses: Int!
+  $instructorAudience: Int!
+  $instructorResponses: Int!
 ) @auth(level: PUBLIC) {
   courseOffering_insert(data: {
     year: $year
     quarter: $quarter
+    section: $section
     courseId: $courseId
     professorId: $professorId
-    audience: $audience
-    responsesReceived: $responsesReceived
-    comments: $comments
+    courseAudience: $courseAudience
+    courseResponses: $courseResponses
+    instructorAudience: $instructorAudience
+    instructorResponses: $instructorResponses
+  })
+}
+
+mutation CreateComment(
+  $courseOfferingId: UUID!
+  $text: String!
+) @auth(level: PUBLIC) {
+  comment_insert(data: {
+    courseOfferingId: $courseOfferingId
+    text: $text
   })
 }
 
 mutation CreateQuestion(
   $courseOfferingId: UUID!
+  $questionNumber: Int!
   $questionText: String!
+  $category: QuestionCategory!
   $responseCount: Int!
-  $distribution: String!
   $mean: Float
 ) @auth(level: PUBLIC) {
   question_insert(data: {
     courseOfferingId: $courseOfferingId
+    questionNumber: $questionNumber
     questionText: $questionText
+    category: $category
     responseCount: $responseCount
-    distribution: $distribution
     mean: $mean
+  })
+}
+
+mutation CreateQuestionDistribution(
+  $questionId: UUID!
+  $optionLabel: String!
+  $count: Int!
+) @auth(level: PUBLIC) {
+  questionDistribution_insert(data: {
+    questionId: $questionId
+    optionLabel: $optionLabel
+    count: $count
   })
 }
