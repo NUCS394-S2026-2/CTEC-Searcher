@@ -1,17 +1,11 @@
 import { useNavigate, useParams } from 'react-router-dom';
 
+import { DistributionChart } from '../components/DistributionChart';
 import { OverallScore } from '../components/OverallScore';
 import { RatingBar } from '../components/RatingBar';
 import { useCourseOffering } from '../hooks/useCourseOffering';
-import { getHoursPerWeek, getMean, getResponseRate } from '../utilities/offeringHelpers';
-
-const RATING_LABELS = [
-  { questionText: 'Quality of instruction', label: 'Instruction Quality' },
-  { questionText: 'Quality of course', label: 'Course Quality' },
-  { questionText: 'Amount learned', label: 'Amount Learned' },
-  { questionText: 'Intellectual challenge', label: 'Intellectual Challenge' },
-  { questionText: 'Stimulated interest', label: 'Stimulated Interest' },
-] as const;
+import { QuestionCategory } from '../types/types';
+import { getMean, getResponseRate } from '../utilities/offeringHelpers';
 
 export const CourseDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -35,9 +29,29 @@ export const CourseDetail = () => {
   }
 
   const professorName = `${offering.professor.firstName} ${offering.professor.lastName}`;
-  const instructionMean = getMean(offering, 'Quality of instruction');
+  const instructionMean = getMean(offering, 1);
   const responseRate = getResponseRate(offering);
-  const hoursPerWeek = getHoursPerWeek(offering);
+
+  const coreQuestions = offering.questions
+    .filter((q) => q.category === QuestionCategory.CORE_RATING)
+    .sort((a, b) => a.questionNumber - b.questionNumber);
+
+  const timeSurveyQuestion = offering.questions.find(
+    (q) => q.category === QuestionCategory.TIME_SURVEY,
+  );
+
+  const demographicQuestions = offering.questions
+    .filter((q) => q.category === QuestionCategory.DEMOGRAPHIC)
+    .sort((a, b) => a.questionNumber - b.questionNumber);
+
+  // Sort CORE_RATING distributions numerically (1–6); leave others as-is
+  const sortedDistributions = (questionNumber: number) => {
+    const q = offering.questions.find((q) => q.questionNumber === questionNumber);
+    if (!q) return [];
+    return [...q.distributions].sort(
+      (a, b) => parseInt(a.optionLabel) - parseInt(b.optionLabel),
+    );
+  };
 
   return (
     <main className="max-w-3xl mx-auto px-4 py-8">
@@ -66,7 +80,7 @@ export const CourseDetail = () => {
                 {offering.course.courseNumber}
               </span>
               <span className="text-sm text-gray-400">
-                {offering.quarter} {offering.year}
+                {offering.quarter} {offering.year} &middot; Section {offering.section}
               </span>
             </div>
             <h1 className="text-2xl font-black text-gray-900 leading-snug mb-1">
@@ -78,43 +92,69 @@ export const CourseDetail = () => {
           <OverallScore value={instructionMean} />
         </div>
 
-        {/* Meta */}
         <div className="flex flex-wrap gap-4 mt-4 text-sm text-gray-500">
           <span>
-            {offering.responsesReceived} responses ({responseRate}% response rate)
+            {offering.courseResponses} responses ({responseRate}% response rate)
           </span>
-          <span>{offering.audience} students enrolled</span>
-          <span>{hoursPerWeek} hrs/wk</span>
+          <span>{offering.courseAudience} students enrolled</span>
         </div>
       </div>
 
       {/* Ratings */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-4">
-        <h2 className="text-sm font-bold text-gray-700 mb-4">Ratings</h2>
-        <div className="flex flex-col gap-4">
-          {RATING_LABELS.map(({ questionText, label }) => (
-            <RatingBar
-              key={questionText}
-              value={getMean(offering, questionText)}
-              label={label}
-            />
-          ))}
+      {coreQuestions.length > 0 && (
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-4">
+          <h2 className="text-sm font-bold text-gray-700 mb-5">Ratings</h2>
+          <div className="flex flex-col gap-6">
+            {coreQuestions.map((q) => (
+              <div key={q.id}>
+                <p className="text-xs text-gray-500 font-medium mb-1">{q.questionText}</p>
+                <RatingBar value={q.mean ?? 0} label="" />
+                <DistributionChart
+                  distributions={sortedDistributions(q.questionNumber)}
+                />
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* Hours per Week */}
+      {timeSurveyQuestion && (
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-4">
+          <h2 className="text-sm font-bold text-gray-700 mb-1">Hours per Week</h2>
+          <p className="text-xs text-gray-400 mb-3">{timeSurveyQuestion.questionText}</p>
+          <DistributionChart distributions={timeSurveyQuestion.distributions} />
+        </div>
+      )}
+
+      {/* Demographics */}
+      {demographicQuestions.length > 0 && (
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-4">
+          <h2 className="text-sm font-bold text-gray-700 mb-5">Demographics</h2>
+          <div className="flex flex-col gap-6">
+            {demographicQuestions.map((q) => (
+              <div key={q.id}>
+                <p className="text-xs text-gray-500 font-medium mb-2">{q.questionText}</p>
+                <DistributionChart distributions={q.distributions} />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Comments */}
-      {offering.comments.length > 0 && (
+      {(offering.comments?.length ?? 0) > 0 && (
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
           <h2 className="text-sm font-bold text-gray-700 mb-4">
-            Student Comments ({offering.comments.length})
+            Student Comments ({offering.comments!.length})
           </h2>
           <div className="flex flex-col gap-4">
-            {offering.comments.map((comment, i) => (
+            {offering.comments!.map((comment) => (
               <blockquote
-                key={i}
+                key={comment.id}
                 className="text-sm text-gray-600 border-l-2 border-purple-200 pl-4 leading-relaxed"
               >
-                {comment}
+                {comment.text}
               </blockquote>
             ))}
           </div>

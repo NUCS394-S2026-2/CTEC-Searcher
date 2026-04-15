@@ -8,25 +8,21 @@ import {
 import type { CourseOffering, Question } from '../types/types';
 import { dataConnect } from './firebase';
 
-const parseQuestions = (
-  questions: {
-    questionText: string;
-    responseCount: number;
-    distribution: string;
-    mean?: number | null;
-  }[],
+const mapQuestions = (
+  questions: ListCourseOfferingsData['courseOfferings'][number]['questions'],
 ): Question[] =>
   questions.map((q) => ({
+    id: q.id,
+    questionNumber: q.questionNumber,
     questionText: q.questionText,
+    category: q.category,
     responseCount: q.responseCount,
-    distribution: (() => {
-      try {
-        return JSON.parse(q.distribution) as Record<string, number>;
-      } catch {
-        return {};
-      }
-    })(),
-    mean: q.mean ?? undefined,
+    mean: q.mean ?? null,
+    distributions: q.distributions.map((d) => ({
+      id: d.id,
+      optionLabel: d.optionLabel,
+      count: d.count,
+    })),
   }));
 
 const mapListOffering = (
@@ -35,20 +31,21 @@ const mapListOffering = (
   id: o.id,
   year: o.year,
   quarter: o.quarter,
-  audience: o.audience,
-  responsesReceived: o.responsesReceived,
-  comments: o.comments,
+  section: o.section,
+  courseAudience: o.courseAudience,
+  courseResponses: o.courseResponses,
   course: {
+    id: o.course.id,
     department: o.course.department,
     courseNumber: o.course.courseNumber,
     courseName: o.course.courseName,
-    sections: o.course.sections,
   },
   professor: {
+    id: o.professor.id,
     firstName: o.professor.firstName,
     lastName: o.professor.lastName,
   },
-  questions: parseQuestions(o.questions),
+  questions: mapQuestions(o.questions),
 });
 
 const mapDetailOffering = (
@@ -57,20 +54,22 @@ const mapDetailOffering = (
   id: o.id,
   year: o.year,
   quarter: o.quarter,
-  audience: o.audience,
-  responsesReceived: o.responsesReceived,
-  comments: o.comments,
+  section: o.section,
+  courseAudience: o.courseAudience,
+  courseResponses: o.courseResponses,
   course: {
+    id: '',
     department: o.course.department,
     courseNumber: o.course.courseNumber,
     courseName: o.course.courseName,
-    sections: o.course.sections,
   },
   professor: {
+    id: '',
     firstName: o.professor.firstName,
     lastName: o.professor.lastName,
   },
-  questions: parseQuestions(o.questions),
+  questions: mapQuestions(o.questions),
+  comments: o.comments.map((c) => ({ id: c.id, text: c.text })),
 });
 
 export const fetchCourseOfferings = async (): Promise<CourseOffering[]> => {

@@ -57,12 +57,6 @@ export interface CourseOffering {
   courseAudience: number;
   courseResponses: number;
 
-  // Note: I included the instructor fields we discussed previously.
-  // If you accidentally dropped them from your latest schema,
-  // you'll want to add them back to your .gql file!
-  instructorAudience: number;
-  instructorResponses: number;
-
   course: Course;
   professor: Professor;
   questions: Question[];
