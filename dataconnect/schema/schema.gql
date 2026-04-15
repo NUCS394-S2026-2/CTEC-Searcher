@@ -1,29 +1,58 @@
+enum Quarter {
+  Fall
+  Winter
+  Spring
+  Summer
+}
+
+enum QuestionCategory {
+  CORE_RATING
+  TIME_SURVEY
+  DEMOGRAPHIC
+}
+
 type Professor @table {
   firstName: String!
   lastName: String!
+  # UNIQUE (firstName, lastName)
 }
 
 type Course @table {
-  department: String!
-  courseNumber: String!
-  courseName: String!
-  sections: [String!]!
+  department: String!     # e.g., "COMP_ENG", "ECON"
+  courseNumber: String!   # e.g., "303-0", "310-1"
+  courseName: String!     # e.g., "Advanced Digital Design"
+  # UNIQUE (department, courseNumber)
 }
 
 type CourseOffering @table {
-  year: Int!
-  quarter: String!
   course: Course!
   professor: Professor!
-  audience: Int!
-  responsesReceived: Int!
-  comments: [String!]!
+  year: Int!
+  quarter: Quarter!
+  section: String!        # e.g., "20", "1"
+  courseAudience: Int!
+  courseResponses: Int!
+  instructorAudience: Int!
+  instructorResponses: Int!
+  # UNIQUE (course, professor, year, quarter, section)
+}
+
+type Comment @table {
+  courseOffering: CourseOffering!
+  text: String!
 }
 
 type Question @table {
   courseOffering: CourseOffering!
+  questionNumber: Int!
   questionText: String!
+  category: QuestionCategory!
   responseCount: Int!
-  distribution: String! # JSON-encoded Record<string, number>
-  mean: Float           # null for categorical questions, present for Likert
+  mean: Float             # Present for CORE_RATING questions, null for categorical
+}
+
+type QuestionDistribution @table {
+  question: Question!
+  optionLabel: String!    # e.g., "6-Very High", "4-7 hours", "McCormick", "Sophomore"
+  count: Int!
 }
