@@ -6,8 +6,6 @@ query ListCourseOfferings @auth(level: PUBLIC) {
     section
     courseAudience
     courseResponses
-    instructorAudience
-    instructorResponses
     course {
       id
       department
@@ -44,8 +42,6 @@ query GetCourseOffering($id: UUID!) @auth(level: PUBLIC) {
     section
     courseAudience
     courseResponses
-    instructorAudience
-    instructorResponses
     course {
       department
       courseNumber
@@ -105,8 +101,6 @@ mutation CreateCourseOffering(
   $professorId: UUID!
   $courseAudience: Int!
   $courseResponses: Int!
-  $instructorAudience: Int!
-  $instructorResponses: Int!
 ) @auth(level: PUBLIC) {
   courseOffering_insert(data: {
     year: $year
@@ -116,8 +110,6 @@ mutation CreateCourseOffering(
     professorId: $professorId
     courseAudience: $courseAudience
     courseResponses: $courseResponses
-    instructorAudience: $instructorAudience
-    instructorResponses: $instructorResponses
   })
 }
 
