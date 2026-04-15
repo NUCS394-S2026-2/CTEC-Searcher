@@ -7,6 +7,7 @@ import { useCourses } from '../hooks/useCourses';
 import { getMean } from '../utilities/offeringHelpers';
 
 const TERMS = ['All', 'Fall', 'Winter', 'Spring', 'Summer'];
+const LEVELS = ['All', '100', '200', '300', '400'];
 const SORT_OPTIONS = [
   { value: '1', label: 'Instruction Rating' },
   { value: '2', label: 'Course Rating' },
@@ -21,6 +22,7 @@ export const Home = () => {
   const query = searchParams.get('q') ?? '';
   const department = searchParams.get('dept') ?? 'All';
   const term = searchParams.get('term') ?? 'All';
+  const level = searchParams.get('level') ?? 'All';
   const sortBy = searchParams.get('sort') ?? SORT_OPTIONS[0].value;
 
   const setParam = (key: string, value: string, defaultValue: string) => {
@@ -57,10 +59,12 @@ export const Home = () => {
           o.course.department.toLowerCase().includes(q);
         const matchesDept = department === 'All' || o.course.department === department;
         const matchesTerm = term === 'All' || o.quarter === term;
-        return matchesQuery && matchesDept && matchesTerm;
+        const courseLevel = o.course.courseNumber.match(/\d+/)?.[0]?.[0] + '00';
+        const matchesLevel = level === 'All' || courseLevel === level;
+        return matchesQuery && matchesDept && matchesTerm && matchesLevel;
       })
       .sort((a, b) => getMean(b, Number(sortBy)) - getMean(a, Number(sortBy)));
-  }, [offerings, query, department, term, sortBy]);
+  }, [offerings, query, department, term, level, sortBy]);
 
   return (
     <>
@@ -80,6 +84,18 @@ export const Home = () => {
               {departments.map((d) => (
                 <option key={d} value={d}>
                   {d === 'All' ? 'All Departments' : d}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={level}
+              onChange={(e) => setParam('level', e.target.value, 'All')}
+              className="text-xs border border-gray-200 rounded-xl px-3 py-1.5 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-400 cursor-pointer"
+            >
+              {LEVELS.map((l) => (
+                <option key={l} value={l}>
+                  {l === 'All' ? 'All Levels' : `${l} Level`}
                 </option>
               ))}
             </select>
