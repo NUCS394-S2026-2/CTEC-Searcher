@@ -8,10 +8,10 @@ import { getMean } from '../utilities/offeringHelpers';
 
 const TERMS = ['All', 'Fall', 'Winter', 'Spring', 'Summer'];
 const SORT_OPTIONS = [
-  { value: 'Quality of instruction', label: 'Instruction Rating' },
-  { value: 'Quality of course', label: 'Course Rating' },
-  { value: 'Amount learned', label: 'Amount Learned' },
-  { value: 'Stimulated interest', label: 'Interest' },
+  { value: '1', label: 'Instruction Rating' },
+  { value: '2', label: 'Course Rating' },
+  { value: '3', label: 'Amount Learned' },
+  { value: '5', label: 'Interest' },
 ];
 
 export const Home = () => {
@@ -59,7 +59,7 @@ export const Home = () => {
         const matchesTerm = term === 'All' || o.quarter === term;
         return matchesQuery && matchesDept && matchesTerm;
       })
-      .sort((a, b) => getMean(b, sortBy) - getMean(a, sortBy));
+      .sort((a, b) => getMean(b, Number(sortBy)) - getMean(a, Number(sortBy)));
   }, [offerings, query, department, term, sortBy]);
 
   return (

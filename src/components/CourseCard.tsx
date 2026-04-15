@@ -1,16 +1,16 @@
 import { useNavigate } from 'react-router-dom';
 
-import type { CourseOffering } from '../types/course';
+import type { CourseOffering } from '../types/types';
 import { getHoursPerWeek, getMean, getResponseRate } from '../utilities/offeringHelpers';
 import { OverallScore } from './OverallScore';
 import { RatingBar } from './RatingBar';
 
 const RATING_LABELS = [
-  { questionText: 'Quality of instruction', label: 'Instruction' },
-  { questionText: 'Quality of course', label: 'Course' },
-  { questionText: 'Amount learned', label: 'Learning' },
-  { questionText: 'Intellectual challenge', label: 'Challenge' },
-  { questionText: 'Stimulated interest', label: 'Interest' },
+  { questionNumber: 1, label: 'Instruction' },
+  { questionNumber: 2, label: 'Course' },
+  { questionNumber: 3, label: 'Learning' },
+  { questionNumber: 4, label: 'Challenge' },
+  { questionNumber: 5, label: 'Interest' },
 ] as const;
 
 interface CourseCardProps {
@@ -19,7 +19,7 @@ interface CourseCardProps {
 
 export const CourseCard = ({ offering }: CourseCardProps) => {
   const navigate = useNavigate();
-  const instructionMean = getMean(offering, 'Quality of instruction');
+  const instructionMean = getMean(offering, 1);
   const responseRate = getResponseRate(offering);
   const hoursPerWeek = getHoursPerWeek(offering);
   const professorName = `${offering.professor.firstName} ${offering.professor.lastName}`;
@@ -69,7 +69,7 @@ export const CourseCard = ({ offering }: CourseCardProps) => {
                 d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"
               />
             </svg>
-            {offering.responsesReceived} responses ({responseRate}%)
+            {offering.courseResponses} responses ({responseRate}%)
           </span>
           <span className="flex items-center gap-1">
             <svg
@@ -108,10 +108,10 @@ export const CourseCard = ({ offering }: CourseCardProps) => {
 
       {/* Ratings */}
       <div className="px-5 pb-4 grid grid-cols-1 gap-2">
-        {RATING_LABELS.map(({ questionText, label }) => (
+        {RATING_LABELS.map(({ questionNumber, label }) => (
           <RatingBar
-            key={questionText}
-            value={getMean(offering, questionText)}
+            key={questionNumber}
+            value={getMean(offering, questionNumber)}
             label={label}
           />
         ))}
