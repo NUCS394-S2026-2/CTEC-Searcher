@@ -3,16 +3,9 @@ import { useNavigate } from 'react-router-dom';
 
 import type { Course, CourseOffering } from '../types/types';
 import { getCourseMean, getHoursPerWeek, getMean } from '../utilities/offeringHelpers';
+import type { CourseOffering } from '../types/types';
+import { getHoursPerWeek, getMean } from '../utilities/offeringHelpers';
 import { OverallScore } from './OverallScore';
-import { RatingBar } from './RatingBar';
-
-const RATING_LABELS = [
-  { questionNumber: 1, label: 'Instruction Rating' },
-  { questionNumber: 2, label: 'Course Rating' },
-  { questionNumber: 3, label: 'Amount Learned' },
-  { questionNumber: 4, label: 'Intellectual Challenge' },
-  { questionNumber: 5, label: 'Prior Interest in Subject' },
-] as const;
 
 interface CourseCardProps {
   course: Course;
@@ -27,6 +20,10 @@ export const CourseCard = ({ course, offerings }: CourseCardProps) => {
   const totalAudience = offerings.reduce((sum, o) => sum + o.courseAudience, 0);
   const responseRate =
     totalAudience > 0 ? Math.round((totalResponses / totalAudience) * 1000) / 10 : 0;
+  const instructionMean = getMean(offering, 1);
+  const courseMean = getMean(offering, 2);
+  const hoursPerWeek = getHoursPerWeek(offering);
+  const professorName = `${offering.professor.firstName} ${offering.professor.lastName}`;
 
   return (
     <div
@@ -55,7 +52,7 @@ export const CourseCard = ({ course, offerings }: CourseCardProps) => {
             </h2>
             <p className="text-sm text-gray-500 mt-0.5">{course.department}</p>
           </div>
-          <OverallScore value={instructionMean} />
+          <OverallScore value={courseMean} />
         </div>
 
         <div className="flex items-center gap-3 mt-3 text-xs text-gray-400">
@@ -70,7 +67,7 @@ export const CourseCard = ({ course, offerings }: CourseCardProps) => {
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
-                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"
+                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
               />
             </svg>
             {totalResponses} responses ({responseRate}%)
