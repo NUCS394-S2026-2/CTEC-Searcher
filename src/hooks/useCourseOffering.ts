@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { fetchCourseOffering } from '../services/courseService';
-import type { CourseOffering } from '../types/course';
+import type { CourseOffering } from '../types/types';
 
 export const useCourseOffering = (id: string) => {
   const [offering, setOffering] = useState<CourseOffering | null>(null);
