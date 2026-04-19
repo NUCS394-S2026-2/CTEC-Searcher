@@ -4,7 +4,7 @@ import { useSearchParams } from 'react-router-dom';
 import { CourseCard } from '../components/CourseCard';
 import { SearchBar } from '../components/SearchBar';
 import { useCourses } from '../hooks/useCourses';
-import { getMean } from '../utilities/offeringHelpers';
+import { getCourseMean } from '../utilities/offeringHelpers';
 
 const TERMS = ['All', 'Fall', 'Winter', 'Spring', 'Summer'];
 const LEVELS = ['All', '100', '200', '300', '400'];
@@ -48,24 +48,41 @@ export const Home = () => {
 
   const filtered = useMemo(() => {
     const q = query.toLowerCase();
-    return offerings
-      .filter((o) => {
-        const professorName =
-          `${o.professor.firstName} ${o.professor.lastName}`.toLowerCase();
-        const matchesQuery =
-          !q ||
-          o.course.courseName.toLowerCase().includes(q) ||
-          o.course.courseNumber.toLowerCase().includes(q) ||
-          professorName.includes(q) ||
-          o.course.department.toLowerCase().includes(q);
-        const matchesDept = department === 'All' || o.course.department === department;
-        const matchesTerm = term === 'All' || o.quarter === term;
-        const courseLevel = o.course.courseNumber.match(/\d+/)?.[0]?.[0] + '00';
-        const matchesLevel = level === 'All' || courseLevel === level;
-        return matchesQuery && matchesDept && matchesTerm && matchesLevel;
-      })
-      .sort((a, b) => getMean(b, Number(sortBy)) - getMean(a, Number(sortBy)));
-  }, [offerings, query, department, term, level, sortBy]);
+    return offerings.filter((o) => {
+      const professorName =
+        `${o.professor.firstName} ${o.professor.lastName}`.toLowerCase();
+      const matchesQuery =
+        !q ||
+        o.course.courseName.toLowerCase().includes(q) ||
+        o.course.courseNumber.toLowerCase().includes(q) ||
+        professorName.includes(q) ||
+        o.course.department.toLowerCase().includes(q);
+      const matchesDept = department === 'All' || o.course.department === department;
+      const matchesTerm = term === 'All' || o.quarter === term;
+      const courseLevel = o.course.courseNumber.match(/\d+/)?.[0]?.[0] + '00';
+      const matchesLevel = level === 'All' || courseLevel === level;
+      return matchesQuery && matchesDept && matchesTerm && matchesLevel;
+    });
+  }, [offerings, query, department, term, level]);
+
+  const grouped = useMemo(() => {
+    const map = new Map<
+      string,
+      { course: (typeof filtered)[0]['course']; offerings: typeof filtered }
+    >();
+    filtered.forEach((offering) => {
+      const key = offering.course.id;
+      if (!map.has(key)) {
+        map.set(key, { course: offering.course, offerings: [] });
+      }
+      map.get(key)!.offerings.push(offering);
+    });
+    return Array.from(map.values()).sort(
+      (a, b) =>
+        getCourseMean(b.offerings, Number(sortBy)) -
+        getCourseMean(a.offerings, Number(sortBy)),
+    );
+  }, [filtered, sortBy]);
 
   return (
     <>
@@ -140,7 +157,7 @@ export const Home = () => {
             <p className="text-sm font-medium">Failed to load courses</p>
             <p className="text-xs mt-1">{error.message}</p>
           </div>
-        ) : filtered.length === 0 ? (
+        ) : grouped.length === 0 ? (
           <div className="text-center py-20 text-gray-400">
             <svg
               className="w-12 h-12 mx-auto mb-3 opacity-40"
@@ -161,12 +178,16 @@ export const Home = () => {
         ) : (
           <>
             <p className="text-xs text-gray-400 mb-4 font-medium">
-              {filtered.length} result{filtered.length !== 1 ? 's' : ''}
+              {grouped.length} result{grouped.length !== 1 ? 's' : ''}
               {query && ` for "${query}"`}
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filtered.map((offering) => (
-                <CourseCard key={offering.id} offering={offering} />
+              {grouped.map((group) => (
+                <CourseCard
+                  key={group.course.id}
+                  course={group.course}
+                  offerings={group.offerings}
+                />
               ))}
             </div>
           </>
