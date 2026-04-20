@@ -32,8 +32,16 @@ export const CourseDetail = () => {
   const instructionMean = getMean(offering, 1);
   const responseRate = getResponseRate(offering);
 
+  // Restore: include all core rating questions for debug, log all questions
+  // Only include rating questions with a valid mean
   const coreQuestions = offering.questions
-    .filter((q) => q.category === QuestionCategory.CORE_RATING)
+    .filter(
+      (q) =>
+        q.category === QuestionCategory.CORE_RATING &&
+        typeof q.mean === 'number' &&
+        q.mean !== null &&
+        !isNaN(q.mean),
+    )
     .sort((a, b) => a.questionNumber - b.questionNumber);
 
   const timeSurveyQuestion = offering.questions.find(

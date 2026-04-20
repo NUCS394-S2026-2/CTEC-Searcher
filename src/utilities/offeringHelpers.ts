@@ -22,7 +22,9 @@ export const getCourseMean = (
   offerings: CourseOffering[],
   questionNumber: number,
 ): number => {
-  const means = offerings.map((o) => getMean(o, questionNumber)).filter((m) => m > 0);
+  const means = offerings
+    .map((o) => getMean(o, questionNumber))
+    .filter((m) => typeof m === 'number' && m !== null && !isNaN(m) && m > 0);
   if (means.length === 0) return 0;
   return means.reduce((a, b) => a + b, 0) / means.length;
 };

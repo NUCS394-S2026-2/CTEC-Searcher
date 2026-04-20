@@ -21,9 +21,16 @@ interface CourseCardProps {
 
 export const CourseCard = ({ course, offerings }: CourseCardProps) => {
   const [expanded, setExpanded] = useState(false);
+  // Restore: use all offerings, add debug logs
   const instructionMean = getCourseMean(offerings, 2);
-  const totalResponses = offerings.reduce((sum, o) => sum + o.courseResponses, 0);
-  const totalAudience = offerings.reduce((sum, o) => sum + o.courseAudience, 0);
+  const totalResponses = offerings.reduce(
+    (sum, o) => sum + (typeof o.courseResponses === 'number' ? o.courseResponses : 0),
+    0,
+  );
+  const totalAudience = offerings.reduce(
+    (sum, o) => sum + (typeof o.courseAudience === 'number' ? o.courseAudience : 0),
+    0,
+  );
   const responseRate =
     totalAudience > 0 ? Math.round((totalResponses / totalAudience) * 1000) / 10 : 0;
 
