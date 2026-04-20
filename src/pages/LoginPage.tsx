@@ -1,13 +1,9 @@
-import { isSignInWithEmailLink, sendSignInLinkToEmail } from 'firebase/auth';
+import { isSignInWithEmailLink } from 'firebase/auth';
+import { httpsCallable } from 'firebase/functions';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { auth } from '../services/firebase';
-
-const ACTION_CODE_SETTINGS = {
-  url: window.location.origin + '/auth/verify',
-  handleCodeInApp: true,
-};
+import { auth, functions } from '../services/firebase';
 
 export function LoginPage() {
   const [email, setEmail] = useState('');
@@ -33,7 +29,11 @@ export function LoginPage() {
 
     setLoading(true);
     try {
-      await sendSignInLinkToEmail(auth, email, ACTION_CODE_SETTINGS);
+      const sendSignInLink = httpsCallable(functions, 'sendSignInLink');
+      await sendSignInLink({
+        email,
+        continueUrl: window.location.origin + '/auth/verify',
+      });
       window.localStorage.setItem('emailForSignIn', email);
       setSent(true);
     } catch {
