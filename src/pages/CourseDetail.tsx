@@ -128,12 +128,6 @@ export const CourseDetail = () => {
         </div>
       )}
 
-      {/* RAG Ask AI */}
-      <RAGCommentFeature
-        comments={offering.comments || []}
-        courseName={offering.course.courseName}
-      />
-
       {/* Demographics */}
       {demographicQuestions.length > 0 && (
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-4">
@@ -148,6 +142,12 @@ export const CourseDetail = () => {
           </div>
         </div>
       )}
+
+      {/* RAG Ask AI */}
+      <RAGCommentFeature
+        comments={offering.comments || []}
+        courseName={offering.course.courseName}
+      />
 
       {/* Comments */}
       {(offering.comments?.length ?? 0) > 0 && (
