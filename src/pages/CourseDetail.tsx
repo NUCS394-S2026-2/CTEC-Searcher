@@ -2,6 +2,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 import { DistributionChart } from '../components/DistributionChart';
 import { OverallScore } from '../components/OverallScore';
+import { RAGCommentFeature } from '../components/RAGCommentFeature';
 import { RatingBar } from '../components/RatingBar';
 import { useCourseOffering } from '../hooks/useCourseOffering';
 import { QuestionCategory } from '../types/types';
@@ -141,6 +142,12 @@ export const CourseDetail = () => {
           </div>
         </div>
       )}
+
+      {/* RAG Ask AI */}
+      <RAGCommentFeature
+        comments={offering.comments || []}
+        courseName={offering.course.courseName}
+      />
 
       {/* Comments */}
       {(offering.comments?.length ?? 0) > 0 && (
