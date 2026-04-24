@@ -20,7 +20,7 @@ export const auth = getAuth(app);
 export const dataConnect = getDataConnect(app, connectorConfig);
 export const functions = getFunctions(app);
 
-if (import.meta.env.DEV) {
+if (import.meta.env.DEV && import.meta.env.VITE_USE_EMULATORS === 'true') {
   connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
   connectDataConnectEmulator(dataConnect, '127.0.0.1', 9399);
   connectFunctionsEmulator(functions, '127.0.0.1', 5001);

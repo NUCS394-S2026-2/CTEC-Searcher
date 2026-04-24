@@ -1,4 +1,4 @@
-import type { CourseOffering } from '../types/types';
+import type { CourseOffering, QuestionDistribution } from '../types/types';
 import { QuestionCategory } from '../types/types';
 
 export const getMean = (offering: CourseOffering, questionNumber: number): number => {
@@ -16,6 +16,13 @@ export const getHoursPerWeek = (offering: CourseOffering): string => {
 export const getResponseRate = (offering: CourseOffering): number => {
   if (offering.courseAudience === 0) return 0;
   return Math.round((offering.courseResponses / offering.courseAudience) * 1000) / 10;
+};
+
+export const sortDistributionsNumerically = (
+  dists: QuestionDistribution[],
+): QuestionDistribution[] => {
+  if (dists.length === 0 || isNaN(parseInt(dists[0].optionLabel))) return dists;
+  return [...dists].sort((a, b) => parseInt(a.optionLabel) - parseInt(b.optionLabel));
 };
 
 export const getCourseMean = (
