@@ -14,6 +14,9 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const GRAPHQL_ENDPOINT =
   'https://firebasedataconnect.googleapis.com/v1beta/projects/northwestern-ctec-searcher/locations/us-east4/services/team-yellow-minimal-initial-version/connectors/example:executeMutation';
 
+const GRAPHQL_QUERY_ENDPOINT =
+  'https://firebasedataconnect.googleapis.com/v1beta/projects/northwestern-ctec-searcher/locations/us-east4/services/team-yellow-minimal-initial-version/connectors/example:executeQuery';
+
 // ---------------------------------------------------------------------------
 // Auth
 // ---------------------------------------------------------------------------
@@ -41,6 +44,43 @@ async function mutate(operationName, variables) {
     throw new Error(`${operationName} returned no data. Full response:\n${JSON.stringify(json, null, 2)}`);
   }
   return json.data;
+}
+
+async function query(operationName, variables) {
+  const res = await fetch(GRAPHQL_QUERY_ENDPOINT, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify({ operationName, variables }),
+  });
+  const json = await res.json();
+  if (json.errors?.length) {
+    throw new Error(`${operationName} failed: ${JSON.stringify(json.errors, null, 2)}`);
+  }
+  if (!json.data) {
+    throw new Error(`${operationName} returned no data. Full response:\n${JSON.stringify(json, null, 2)}`);
+  }
+  return json.data;
+}
+
+async function deleteExistingOffering(courseId, professorId, year, quarter) {
+  const data = await query('FindCourseOffering', {
+    courseId,
+    professorId,
+    year,
+    quarter,
+  });
+  const existing = data.courseOfferings?.[0];
+  if (!existing) return;
+
+  for (const q of existing.questions) {
+    await mutate('DeleteQuestionDistributions', { questionId: q.id });
+  }
+  await mutate('DeleteOfferingQuestions', { courseOfferingId: existing.id });
+  await mutate('DeleteOfferingComments', { courseOfferingId: existing.id });
+  await mutate('DeleteCourseOffering', { id: existing.id });
 }
 
 // ---------------------------------------------------------------------------
@@ -101,8 +141,9 @@ for (const record of seedData) {
   }
   const courseId = courseCache.get(courseKey);
 
-  // 3. CourseOffering
+  // 3. CourseOffering — delete any existing conflict first, then insert fresh
   const section = (course.sections?.[0] ?? '1').toString();
+  await deleteExistingOffering(courseId, professorId, offering.year, offering.quarter);
   const offeringData = await mutate('CreateCourseOffering', {
     courseId,
     professorId,
