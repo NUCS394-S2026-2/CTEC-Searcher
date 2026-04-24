@@ -21,21 +21,21 @@ export const CourseAtAGlance = ({ coreRatings, hoursPerWeek }: CourseAtAGlancePr
             className="flex flex-col items-center flex-1 px-3 py-1 gap-0.5"
           >
             <span
-              className={`text-xl font-black tabular-nums ${value > 0 ? ratingTextColor(value) : 'text-gray-300'}`}
+              className={`text-2xl font-black tabular-nums ${value > 0 ? ratingTextColor(value) : 'text-gray-300'}`}
             >
               {value > 0 ? value.toFixed(1) : '—'}
             </span>
-            <span className="text-[11px] text-gray-400 text-center leading-tight">
+            <span className="text-[11px] text-gray-400 text-center leading-tight mt-auto">
               {label}
             </span>
           </div>
         ))}
         <div className="flex flex-col items-center flex-1 px-3 py-1 gap-0.5">
-          <span className="text-xl font-black text-purple-500 tabular-nums">
+          <span className="text-2xl font-black text-green-600 text-center leading-tight">
             {hoursPerWeek}
           </span>
           <span className="text-[11px] text-gray-400 text-center leading-tight">
-            hrs / week
+            Hours / Week
           </span>
         </div>
       </div>

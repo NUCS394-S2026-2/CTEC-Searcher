@@ -13,7 +13,13 @@ import {
   sortDistributionsNumerically,
 } from '../utilities/offeringHelpers';
 
-const CORE_RATING_LABELS = ['Instructor', 'Course', 'Learned', 'Challenge', 'Interest'];
+const CORE_RATING_LABELS = [
+  'Instructor Rating',
+  'Course Rating',
+  'Amount Learned',
+  'Intellectual Challenge',
+  'Prior Interest',
+];
 
 export const CourseDetail = () => {
   const { id } = useParams<{ id: string }>();
