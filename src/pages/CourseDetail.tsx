@@ -1,12 +1,19 @@
 import { useNavigate, useParams } from 'react-router-dom';
 
-import { DistributionChart } from '../components/DistributionChart';
+import { CourseAtAGlance } from '../components/CourseAtAGlance';
 import { OverallScore } from '../components/OverallScore';
+import { QuestionDistributionBlock } from '../components/QuestionDistributionBlock';
 import { RAGCommentFeature } from '../components/RAGCommentFeature';
-import { RatingBar } from '../components/RatingBar';
 import { useCourseOffering } from '../hooks/useCourseOffering';
 import { QuestionCategory } from '../types/types';
-import { getMean, getResponseRate } from '../utilities/offeringHelpers';
+import {
+  getHoursPerWeek,
+  getMean,
+  getResponseRate,
+  sortDistributionsNumerically,
+} from '../utilities/offeringHelpers';
+
+const CORE_RATING_LABELS = ['Instructor', 'Course', 'Learned', 'Challenge', 'Interest'];
 
 export const CourseDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -45,8 +52,15 @@ export const CourseDetail = () => {
     .filter((q) => q.category === QuestionCategory.DEMOGRAPHIC)
     .sort((a, b) => a.questionNumber - b.questionNumber);
 
-  // Sort CORE_RATING distributions numerically (1–6); leave others as-is
-  const sortedDistributions = (questionNumber: number) => {
+  const coreRatings = coreQuestions.map((q, i) => ({
+    label: CORE_RATING_LABELS[i] ?? q.questionText,
+    value: q.mean ?? 0,
+  }));
+
+  const hoursPerWeek = getHoursPerWeek(offering);
+
+  // Sort CORE_RATING distributions numerically (1–6)
+  const sortedCoreDistributions = (questionNumber: number) => {
     const q = offering.questions.find((q) => q.questionNumber === questionNumber);
     if (!q) return [];
     return [...q.distributions].sort(
@@ -101,30 +115,30 @@ export const CourseDetail = () => {
         </div>
       </div>
 
-      {/* Ratings */}
-      {coreQuestions.length > 0 && (
+      {/* At a Glance Summary */}
+      <CourseAtAGlance coreRatings={coreRatings} hoursPerWeek={hoursPerWeek} />
+
+      {/* Ratings + Hours per Week */}
+      {(coreQuestions.length > 0 || timeSurveyQuestion) && (
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-4">
           <h2 className="text-sm font-bold text-gray-700 mb-5">Ratings</h2>
-          <div className="flex flex-col gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {coreQuestions.map((q) => (
-              <div key={q.id}>
-                <p className="text-xs text-gray-500 font-medium mb-1">{q.questionText}</p>
-                <RatingBar value={q.mean ?? 0} label="" />
-                <DistributionChart
-                  distributions={sortedDistributions(q.questionNumber)}
-                />
-              </div>
+              <QuestionDistributionBlock
+                key={q.id}
+                label={q.questionText}
+                mean={q.mean ?? 0}
+                distributions={sortedCoreDistributions(q.questionNumber)}
+              />
             ))}
+            {timeSurveyQuestion && (
+              <QuestionDistributionBlock
+                key={timeSurveyQuestion.id}
+                label={timeSurveyQuestion.questionText}
+                distributions={timeSurveyQuestion.distributions}
+              />
+            )}
           </div>
-        </div>
-      )}
-
-      {/* Hours per Week */}
-      {timeSurveyQuestion && (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-4">
-          <h2 className="text-sm font-bold text-gray-700 mb-1">Hours per Week</h2>
-          <p className="text-xs text-gray-400 mb-3">{timeSurveyQuestion.questionText}</p>
-          <DistributionChart distributions={timeSurveyQuestion.distributions} />
         </div>
       )}
 
@@ -132,12 +146,13 @@ export const CourseDetail = () => {
       {demographicQuestions.length > 0 && (
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-4">
           <h2 className="text-sm font-bold text-gray-700 mb-5">Demographics</h2>
-          <div className="flex flex-col gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {demographicQuestions.map((q) => (
-              <div key={q.id}>
-                <p className="text-xs text-gray-500 font-medium mb-2">{q.questionText}</p>
-                <DistributionChart distributions={q.distributions} />
-              </div>
+              <QuestionDistributionBlock
+                key={q.id}
+                label={q.questionText}
+                distributions={sortDistributionsNumerically(q.distributions)}
+              />
             ))}
           </div>
         </div>
