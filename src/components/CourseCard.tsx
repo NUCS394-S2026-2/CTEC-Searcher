@@ -4,15 +4,6 @@ import type { Course, CourseOffering } from '../types/types';
 import { getCourseMean } from '../utilities/offeringHelpers';
 import { OfferingList } from './OfferingList';
 import { OverallScore } from './OverallScore';
-import { RatingBar } from './RatingBar';
-
-const RATING_LABELS = [
-  { questionNumber: 1, label: 'Instruction Rating' },
-  { questionNumber: 2, label: 'Course Rating' },
-  { questionNumber: 3, label: 'Amount Learned' },
-  { questionNumber: 4, label: 'Intellectual Challenge' },
-  { questionNumber: 5, label: 'Prior Interest in Subject' },
-] as const;
 
 interface CourseCardProps {
   course: Course;
@@ -21,7 +12,9 @@ interface CourseCardProps {
 
 export const CourseCard = ({ course, offerings }: CourseCardProps) => {
   const [expanded, setExpanded] = useState(false);
-  const instructionMean = getCourseMean(offerings, 2);
+
+  // Question 2 corresponds to "Course Rating"
+  const courseRatingMean = getCourseMean(offerings, 2);
   const totalResponses = offerings.reduce((sum, o) => sum + o.courseResponses, 0);
   const totalAudience = offerings.reduce((sum, o) => sum + o.courseAudience, 0);
   const responseRate =
@@ -54,13 +47,15 @@ export const CourseCard = ({ course, offerings }: CourseCardProps) => {
             </h2>
             <p className="text-sm text-gray-500 mt-0.5">{course.department}</p>
           </div>
-          <OverallScore value={instructionMean} />
+          {/* Overall score in the top right */}
+          <OverallScore value={courseRatingMean} />
         </div>
 
-        <div className="flex items-center gap-3 mt-3 text-xs text-gray-400">
-          <span className="flex items-center gap-1">
+        {/* Meta Stats Row (Responses) */}
+        <div className="flex flex-wrap items-center gap-4 mt-3 text-xs text-gray-500 font-medium">
+          <span className="flex items-center gap-1.5">
             <svg
-              className="w-3.5 h-3.5"
+              className="w-4 h-4 text-gray-400"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -77,21 +72,10 @@ export const CourseCard = ({ course, offerings }: CourseCardProps) => {
         </div>
       </div>
 
-      {/* Ratings */}
-      <div className="px-5 pb-4 grid grid-cols-1 gap-2">
-        {RATING_LABELS.map(({ questionNumber, label }) => (
-          <RatingBar
-            key={questionNumber}
-            value={getCourseMean(offerings, questionNumber)}
-            label={label}
-          />
-        ))}
-      </div>
-
       {/* Expand Text */}
       {!expanded && (
-        <div className="px-5 pb-4">
-          <p className="text-xs text-gray-400 text-center">
+        <div className="px-5 pb-4 mt-1">
+          <p className="text-xs text-gray-400 text-center bg-gray-50 py-2 rounded-lg hover:bg-gray-100 transition-colors">
             Click to expand and see all offerings
           </p>
         </div>
