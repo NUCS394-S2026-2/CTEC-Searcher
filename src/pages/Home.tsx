@@ -4,17 +4,9 @@ import { useSearchParams } from 'react-router-dom';
 import { CourseCard } from '../components/CourseCard';
 import { SearchBar } from '../components/SearchBar';
 import { useCourses } from '../hooks/useCourses';
-import { getCourseMean } from '../utilities/offeringHelpers';
 
 const TERMS = ['All', 'Fall', 'Winter', 'Spring', 'Summer'];
 const LEVELS = ['All', '100', '200', '300', '400'];
-const SORT_OPTIONS = [
-  { value: '2', label: 'Course Rating' },
-  { value: '1', label: 'Instruction Rating' },
-  { value: '3', label: 'Amount Learned' },
-  { value: '4', label: 'Intellectual Challenge' },
-  { value: '5', label: 'Prior Interest in Subject' },
-];
 
 export const Home = () => {
   const { offerings, loading, error } = useCourses();
@@ -24,8 +16,6 @@ export const Home = () => {
   const department = searchParams.get('dept') ?? 'All';
   const term = searchParams.get('term') ?? 'All';
   const level = searchParams.get('level') ?? 'All';
-  const sortBy = searchParams.get('sort') ?? SORT_OPTIONS[0].value;
-
   const setParam = (key: string, value: string, defaultValue: string) => {
     setSearchParams((prev) => {
       const next = new URLSearchParams(prev);
@@ -77,12 +67,8 @@ export const Home = () => {
       }
       map.get(key)!.offerings.push(offering);
     });
-    return Array.from(map.values()).sort(
-      (a, b) =>
-        getCourseMean(b.offerings, Number(sortBy)) -
-        getCourseMean(a.offerings, Number(sortBy)),
-    );
-  }, [filtered, sortBy]);
+    return Array.from(map.values());
+  }, [filtered]);
 
   return (
     <>
@@ -126,19 +112,6 @@ export const Home = () => {
               {TERMS.map((t) => (
                 <option key={t} value={t}>
                   {t === 'All' ? 'All Terms' : t}
-                </option>
-              ))}
-            </select>
-
-            <span className="text-xs text-gray-400 font-medium ml-2">Sort:</span>
-            <select
-              value={sortBy}
-              onChange={(e) => setParam('sort', e.target.value, SORT_OPTIONS[0].value)}
-              className="text-xs border border-gray-200 rounded-xl px-3 py-1.5 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-400 cursor-pointer"
-            >
-              {SORT_OPTIONS.map((s) => (
-                <option key={s.value} value={s.value}>
-                  {s.label}
                 </option>
               ))}
             </select>
