@@ -121,23 +121,39 @@ for (const record of seedData) {
   // 1. Professor
   const profKey = `${professor.first_name}|${professor.last_name}`;
   if (!professorCache.has(profKey)) {
-    const data = await mutate('CreateProfessor', {
+    const existing = await query('FindProfessor', {
       firstName: professor.first_name,
       lastName: professor.last_name,
     });
-    professorCache.set(profKey, data.professor_insert.id);
+    if (existing.professors?.[0]?.id) {
+      professorCache.set(profKey, existing.professors[0].id);
+    } else {
+      const data = await mutate('CreateProfessor', {
+        firstName: professor.first_name,
+        lastName: professor.last_name,
+      });
+      professorCache.set(profKey, data.professor_insert.id);
+    }
   }
   const professorId = professorCache.get(profKey);
 
   // 2. Course
   const courseKey = `${course.department}|${course.course_number}`;
   if (!courseCache.has(courseKey)) {
-    const data = await mutate('CreateCourse', {
+    const existing = await query('FindCourse', {
       department: course.department,
       courseNumber: course.course_number,
-      courseName: course.course_name.replace(/\s+/g, ' ').trim(),
     });
-    courseCache.set(courseKey, data.course_insert.id);
+    if (existing.courses?.[0]?.id) {
+      courseCache.set(courseKey, existing.courses[0].id);
+    } else {
+      const data = await mutate('CreateCourse', {
+        department: course.department,
+        courseNumber: course.course_number,
+        courseName: course.course_name.replace(/\s+/g, ' ').trim(),
+      });
+      courseCache.set(courseKey, data.course_insert.id);
+    }
   }
   const courseId = courseCache.get(courseKey);
 
