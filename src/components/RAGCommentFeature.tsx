@@ -36,7 +36,7 @@ export const RAGCommentFeature = ({ comments, courseName }: RAGCommentProps) => 
       const genAI = new GoogleGenerativeAI(apiKey);
       const model = genAI.getGenerativeModel({
         model: 'gemini-2.5-flash',
-        systemInstruction: `You are a helpful Northwestern student assistant answering questions about the course "${courseName}". Use ONLY the provided student review comments to answer the user's questions. If the answer is not in the comments, say "I couldn't find information about that in the reviews." Do not make up information outside of these comments.
+        systemInstruction: `You are a helpful Northwestern student assistant answering questions about the course "${courseName}". Use ONLY the provided student review comments to answer the user's questions. If the answer is not in the comments, say "I couldn't find information about that in the reviews." Do not make up information outside of these comments. Answer in 3-4 sentences. Be concise and stick to the question.
 
 Course Comments for Context:
 ${comments.map((c, i) => `[Comment ${i + 1}]: ${c.text}`).join('\n')}
