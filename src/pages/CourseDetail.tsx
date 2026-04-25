@@ -121,6 +121,30 @@ export const CourseDetail = () => {
         </div>
       </div>
 
+      {/* AI Summary */}
+      {offering.aiSummary && (
+        <div className="bg-white rounded-2xl border border-purple-100 shadow-sm p-6 mb-4">
+          <h2 className="text-sm font-bold text-purple-800 mb-3 flex items-center gap-2">
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M5 3l14 9-14 9V3z"
+              />
+            </svg>
+            AI Summary
+          </h2>
+          <p className="text-sm text-gray-700 leading-relaxed">{offering.aiSummary}</p>
+          <p className="text-xs text-gray-400 mt-3">Generated from student comments</p>
+        </div>
+      )}
+
       {/* At a Glance Summary */}
       <CourseAtAGlance coreRatings={coreRatings} hoursPerWeek={hoursPerWeek} />
 

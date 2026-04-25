@@ -32,6 +32,7 @@ type CourseOffering @table {
   section: String!        # e.g., "20", "1"
   courseAudience: Int!
   courseResponses: Int!
+  aiSummary: String
   # UNIQUE (course, professor, year, quarter, section)
 }
 

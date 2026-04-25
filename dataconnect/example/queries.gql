@@ -42,6 +42,7 @@ query GetCourseOffering($id: UUID!) @auth(level: PUBLIC) {
     section
     courseAudience
     courseResponses
+    aiSummary
     course {
       department
       courseNumber
@@ -125,6 +126,7 @@ mutation CreateCourseOffering(
   $professorId: UUID!
   $courseAudience: Int!
   $courseResponses: Int!
+  $aiSummary: String
 ) @auth(level: PUBLIC) {
   courseOffering_insert(data: {
     year: $year
@@ -134,6 +136,7 @@ mutation CreateCourseOffering(
     professorId: $professorId
     courseAudience: $courseAudience
     courseResponses: $courseResponses
+    aiSummary: $aiSummary
   })
 }
 

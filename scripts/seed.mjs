@@ -8,6 +8,7 @@ import { execSync } from 'child_process';
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -64,6 +65,36 @@ async function query(operationName, variables) {
   }
   return json.data;
 }
+
+// ---------------------------------------------------------------------------
+// AI Summary
+// ---------------------------------------------------------------------------
+
+const geminiApiKey = process.env.VITE_GEMINI_API_KEY;
+const genAI = geminiApiKey ? new GoogleGenerativeAI(geminiApiKey) : null;
+
+async function generateAISummary(prompt) {
+  if (!genAI) return null;
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+  const result = await model.generateContent(prompt);
+  return result.response.text().trim();
+}
+
+function buildSummaryPrompt({ courseName, department, courseNumber, firstName, lastName, quarter, year, comments }) {
+  return `You are summarizing student reviews for a Northwestern University course.
+Write a 4-5 sentence summary based ONLY on the comments below. Cover:
+- What students learn in this course
+- Major assignments or assessments (exams, projects, problem sets, etc.)
+- Overall workload and teaching style
+
+Course: ${courseName} (${department} ${courseNumber})
+Professor: ${firstName} ${lastName} — ${quarter} ${year}
+
+Student comments:
+${comments.map((c, i) => `[${i + 1}] ${c}`).join('\n')}`;
+}
+
+// ---------------------------------------------------------------------------
 
 async function deleteExistingOffering(courseId, professorId, year, quarter) {
   const data = await query('FindCourseOffering', {
@@ -157,7 +188,21 @@ for (const record of seedData) {
   }
   const courseId = courseCache.get(courseKey);
 
-  // 3. CourseOffering — delete any existing conflict first, then insert fresh
+  // 3. Generate AI summary from local comments before inserting
+  const aiSummary = comments?.length > 0
+    ? await generateAISummary(buildSummaryPrompt({
+        courseName: course.course_name,
+        department: course.department,
+        courseNumber: course.course_number,
+        firstName: professor.first_name,
+        lastName: professor.last_name,
+        quarter: offering.quarter,
+        year: offering.year,
+        comments,
+      }))
+    : null;
+
+  // 4. CourseOffering — delete any existing conflict first, then insert fresh
   const section = (course.sections?.[0] ?? '1').toString();
   await deleteExistingOffering(courseId, professorId, offering.year, offering.quarter);
   const offeringData = await mutate('CreateCourseOffering', {
@@ -168,10 +213,11 @@ for (const record of seedData) {
     section,
     courseAudience: offering.audience,
     courseResponses: offering.responses_received,
+    aiSummary,
   });
   const offeringId = offeringData.courseOffering_insert.id;
 
-  // 4. Questions + distributions
+  // 5. Questions + distributions
   const allQuestions = [
     ...(likert_questions ?? []),
     ...(categorical_questions ?? []),
@@ -198,7 +244,7 @@ for (const record of seedData) {
     }
   }
 
-  // 5. Comments
+  // 6. Comments
   for (const text of (comments ?? [])) {
     await mutate('CreateComment', {
       courseOfferingId: offeringId,
