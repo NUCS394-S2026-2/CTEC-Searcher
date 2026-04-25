@@ -152,3 +152,38 @@ mutation CreateQuestionDistribution(
     count: $count
   })
 }
+
+query FindCourseOffering(
+  $courseId: UUID!
+  $professorId: UUID!
+  $year: Int!
+  $quarter: Quarter!
+) @auth(level: PUBLIC) {
+  courseOfferings(where: {
+    courseId: { eq: $courseId }
+    professorId: { eq: $professorId }
+    year: { eq: $year }
+    quarter: { eq: $quarter }
+  }) {
+    id
+    questions: questions_on_courseOffering {
+      id
+    }
+  }
+}
+
+mutation DeleteQuestionDistributions($questionId: UUID!) @auth(level: PUBLIC) {
+  questionDistribution_deleteMany(where: { questionId: { eq: $questionId } })
+}
+
+mutation DeleteOfferingQuestions($courseOfferingId: UUID!) @auth(level: PUBLIC) {
+  question_deleteMany(where: { courseOfferingId: { eq: $courseOfferingId } })
+}
+
+mutation DeleteOfferingComments($courseOfferingId: UUID!) @auth(level: PUBLIC) {
+  comment_deleteMany(where: { courseOfferingId: { eq: $courseOfferingId } })
+}
+
+mutation DeleteCourseOffering($id: UUID!) @auth(level: PUBLIC) {
+  courseOffering_delete(id: $id)
+}
