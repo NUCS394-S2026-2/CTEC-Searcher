@@ -70,6 +70,7 @@ const mapDetailOffering = (
   },
   questions: mapQuestions(o.questions),
   comments: o.comments.map((c) => ({ id: c.id, text: c.text })),
+  aiSummary: (o as unknown as { aiSummary?: string | null }).aiSummary ?? null,
 });
 
 export const fetchCourseOfferings = async (): Promise<CourseOffering[]> => {

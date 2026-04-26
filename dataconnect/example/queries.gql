@@ -42,6 +42,7 @@ query GetCourseOffering($id: UUID!) @auth(level: PUBLIC) {
     section
     courseAudience
     courseResponses
+    aiSummary
     course {
       department
       courseNumber
@@ -68,6 +69,30 @@ query GetCourseOffering($id: UUID!) @auth(level: PUBLIC) {
         count
       }
     }
+  }
+}
+
+query FindProfessor(
+  $firstName: String!
+  $lastName: String!
+) @auth(level: PUBLIC) {
+  professors(where: {
+    firstName: { eq: $firstName }
+    lastName: { eq: $lastName }
+  }) {
+    id
+  }
+}
+
+query FindCourse(
+  $department: String!
+  $courseNumber: String!
+) @auth(level: PUBLIC) {
+  courses(where: {
+    department: { eq: $department }
+    courseNumber: { eq: $courseNumber }
+  }) {
+    id
   }
 }
 
@@ -101,6 +126,7 @@ mutation CreateCourseOffering(
   $professorId: UUID!
   $courseAudience: Int!
   $courseResponses: Int!
+  $aiSummary: String
 ) @auth(level: PUBLIC) {
   courseOffering_insert(data: {
     year: $year
@@ -110,6 +136,7 @@ mutation CreateCourseOffering(
     professorId: $professorId
     courseAudience: $courseAudience
     courseResponses: $courseResponses
+    aiSummary: $aiSummary
   })
 }
 

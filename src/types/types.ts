@@ -64,4 +64,5 @@ export interface CourseOffering {
   // Optional because the ListCourseOfferings query omits them for performance,
   // but GetCourseOffering will populate them.
   comments?: Comment[];
+  aiSummary?: string | null;
 }
