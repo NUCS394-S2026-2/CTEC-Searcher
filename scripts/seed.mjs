@@ -33,7 +33,7 @@ async function mutate(operationName, variables) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({ operationName, variables }),
   });
@@ -42,7 +42,9 @@ async function mutate(operationName, variables) {
     throw new Error(`${operationName} failed: ${JSON.stringify(json.errors, null, 2)}`);
   }
   if (!json.data) {
-    throw new Error(`${operationName} returned no data. Full response:\n${JSON.stringify(json, null, 2)}`);
+    throw new Error(
+      `${operationName} returned no data. Full response:\n${JSON.stringify(json, null, 2)}`,
+    );
   }
   return json.data;
 }
@@ -52,7 +54,7 @@ async function query(operationName, variables) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({ operationName, variables }),
   });
@@ -61,7 +63,9 @@ async function query(operationName, variables) {
     throw new Error(`${operationName} failed: ${JSON.stringify(json.errors, null, 2)}`);
   }
   if (!json.data) {
-    throw new Error(`${operationName} returned no data. Full response:\n${JSON.stringify(json, null, 2)}`);
+    throw new Error(
+      `${operationName} returned no data. Full response:\n${JSON.stringify(json, null, 2)}`,
+    );
   }
   return json.data;
 }
@@ -80,38 +84,29 @@ async function generateAISummary(prompt) {
   return result.response.text().trim();
 }
 
-function buildSummaryPrompt({ courseName, department, courseNumber, firstName, lastName, quarter, year, comments }) {
+function buildSummaryPrompt({
+  courseName,
+  department,
+  courseNumber,
+  firstName,
+  lastName,
+  quarter,
+  year,
+  comments,
+}) {
   return `You are summarizing student reviews for a Northwestern University course.
 Write a 4-5 sentence summary based ONLY on the comments below. Cover:
 - What students learn in this course
-- Major assignments or assessments (exams, projects, problem sets, etc.)
+- SPECIFIC!! major assignments or assessments with DETAILS!! about them (exams, projects, problem sets, etc.)
 - Overall workload and teaching style
+- What students liked and disliked
+- if there is a curve and how it is applied
 
 Course: ${courseName} (${department} ${courseNumber})
 Professor: ${firstName} ${lastName} — ${quarter} ${year}
 
 Student comments:
 ${comments.map((c, i) => `[${i + 1}] ${c}`).join('\n')}`;
-}
-
-// ---------------------------------------------------------------------------
-
-async function deleteExistingOffering(courseId, professorId, year, quarter) {
-  const data = await query('FindCourseOffering', {
-    courseId,
-    professorId,
-    year,
-    quarter,
-  });
-  const existing = data.courseOfferings?.[0];
-  if (!existing) return;
-
-  for (const q of existing.questions) {
-    await mutate('DeleteQuestionDistributions', { questionId: q.id });
-  }
-  await mutate('DeleteOfferingQuestions', { courseOfferingId: existing.id });
-  await mutate('DeleteOfferingComments', { courseOfferingId: existing.id });
-  await mutate('DeleteCourseOffering', { id: existing.id });
 }
 
 // ---------------------------------------------------------------------------
@@ -128,9 +123,7 @@ function getCategoryForQuestion(questionNumber) {
 // Load seed data
 // ---------------------------------------------------------------------------
 
-const seedData = JSON.parse(
-  readFileSync(join(__dirname, 'seed_data.json'), 'utf-8')
-);
+const seedData = JSON.parse(readFileSync(join(__dirname, 'seed_data.json'), 'utf-8'));
 
 // ---------------------------------------------------------------------------
 // Seed
@@ -140,14 +133,23 @@ console.log('Seeding production Data Connect...\n');
 console.log(`Total records to upload: ${seedData.length}\n`);
 
 const professorCache = new Map(); // "firstName|lastName" -> UUID
-const courseCache = new Map();    // "department|courseNumber" -> UUID
+const courseCache = new Map(); // "department|courseNumber" -> UUID
 
 let recordIndex = 0;
 for (const record of seedData) {
   recordIndex++;
   const pct = Math.round((recordIndex / seedData.length) * 100);
-  process.stdout.write(`[${recordIndex}/${seedData.length}] (${pct}%) ${record.professor.first_name} ${record.professor.last_name} — ${record.course.department} ${record.course.course_number} ${record.offering.quarter} ${record.offering.year}... `);
-  const { professor, course, offering, likert_questions, categorical_questions, comments } = record;
+  process.stdout.write(
+    `[${recordIndex}/${seedData.length}] (${pct}%) ${record.professor.first_name} ${record.professor.last_name} — ${record.course.department} ${record.course.course_number} ${record.offering.quarter} ${record.offering.year}... `,
+  );
+  const {
+    professor,
+    course,
+    offering,
+    likert_questions,
+    categorical_questions,
+    comments,
+  } = record;
 
   // 1. Professor
   const profKey = `${professor.first_name}|${professor.last_name}`;
@@ -188,23 +190,37 @@ for (const record of seedData) {
   }
   const courseId = courseCache.get(courseKey);
 
-  // 3. Generate AI summary from local comments before inserting
-  const aiSummary = comments?.length > 0
-    ? await generateAISummary(buildSummaryPrompt({
-        courseName: course.course_name,
-        department: course.department,
-        courseNumber: course.course_number,
-        firstName: professor.first_name,
-        lastName: professor.last_name,
-        quarter: offering.quarter,
-        year: offering.year,
-        comments,
-      }))
-    : null;
-
-  // 4. CourseOffering — delete any existing conflict first, then insert fresh
+  // 3. Skip if offering already exists
   const section = (course.sections?.[0] ?? '1').toString();
-  await deleteExistingOffering(courseId, professorId, offering.year, offering.quarter);
+  const existingOffering = await query('FindCourseOffering', {
+    courseId,
+    professorId,
+    year: offering.year,
+    quarter: offering.quarter,
+  });
+  if (existingOffering.courseOfferings?.[0]) {
+    console.log('skipped (already exists)');
+    continue;
+  }
+
+  // 4. Generate AI summary from local comments before inserting
+  const aiSummary =
+    comments?.length > 0
+      ? await generateAISummary(
+          buildSummaryPrompt({
+            courseName: course.course_name,
+            department: course.department,
+            courseNumber: course.course_number,
+            firstName: professor.first_name,
+            lastName: professor.last_name,
+            quarter: offering.quarter,
+            year: offering.year,
+            comments,
+          }),
+        )
+      : null;
+
+  // 5. CourseOffering — insert fresh
   const offeringData = await mutate('CreateCourseOffering', {
     courseId,
     professorId,
@@ -218,10 +234,7 @@ for (const record of seedData) {
   const offeringId = offeringData.courseOffering_insert.id;
 
   // 5. Questions + distributions
-  const allQuestions = [
-    ...(likert_questions ?? []),
-    ...(categorical_questions ?? []),
-  ];
+  const allQuestions = [...(likert_questions ?? []), ...(categorical_questions ?? [])];
 
   for (const q of allQuestions) {
     const category = getCategoryForQuestion(q.question_number);
@@ -245,14 +258,16 @@ for (const record of seedData) {
   }
 
   // 6. Comments
-  for (const text of (comments ?? [])) {
+  for (const text of comments ?? []) {
     await mutate('CreateComment', {
       courseOfferingId: offeringId,
       text,
     });
   }
 
-  console.log(`done (${allQuestions.length} questions, ${(comments ?? []).length} comments)`);
+  console.log(
+    `done (${allQuestions.length} questions, ${(comments ?? []).length} comments)`,
+  );
 }
 
 console.log('\nDone! Database seeded successfully.');
