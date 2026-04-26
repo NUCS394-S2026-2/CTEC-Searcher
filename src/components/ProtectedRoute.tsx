@@ -13,7 +13,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (!user && !import.meta.env.VITE_DEV_BYPASS_AUTH) {
+  if (!user && import.meta.env.VITE_DEV_BYPASS_AUTH !== 'true') {
     return <Navigate to="/login" replace />;
   }
 
